@@ -54,6 +54,8 @@ input[type=text],input[type=number],input[type=date],select,textarea{
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
 textarea{resize:vertical;min-height:52px}
 .row{display:grid;gap:14px;margin-bottom:14px}
+.row>div{min-width:0}
+input[type=date]{max-width:100%;min-width:0;-webkit-appearance:none;appearance:none}
 .r2{grid-template-columns:1fr 1fr}
 .r3{grid-template-columns:1fr 1fr 1fr}
 .r4{grid-template-columns:1fr 1fr 1fr 1fr}
@@ -82,8 +84,10 @@ textarea{resize:vertical;min-height:52px}
 .bar .lb i{font-style:normal;color:var(--sub);font-variant-numeric:tabular-nums}
 .bar .tr{height:9px;background:#eeece7;border-radius:5px;overflow:hidden}
 .bar .fl{height:100%;border-radius:5px;background:var(--accent);transition:width .3s}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .days{display:flex;gap:7px;align-items:flex-end;height:130px;padding-top:8px}
-.days .d{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+.days .d{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+.days .dl,.days .dv{max-width:100%;overflow:hidden;text-overflow:clip}
 .days .col{width:100%;background:var(--accent);border-radius:5px 5px 0 0;min-height:2px}
 .days .dl{font-size:10.5px;color:var(--sub);white-space:nowrap}
 .days .dv{font-size:10.5px;color:var(--sub);font-variant-numeric:tabular-nums}
@@ -104,8 +108,9 @@ tr:hover td{background:#faf9f7}
 .pill button:hover{color:var(--warn)}
 hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 .hide{display:none!important}
-.streak{background:linear-gradient(135deg,#2f5d50,#3f8f8a);color:#fff;border:0!important}
-.streak span{color:#fff;opacity:.8}
+.stat div.streak{background:linear-gradient(135deg,#2f5d50,#3f8f8a);border:0}
+.stat div.streak span{color:#fff;opacity:.85}
+.stat div.streak b{color:#fff}
 .plan{display:flex;align-items:flex-start;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line)}
 .plan:last-child{border-bottom:0}
 .plan input[type=checkbox]{width:18px;height:18px;margin-top:2px;accent-color:var(--accent);cursor:pointer;flex:0 0 auto}
@@ -183,9 +188,23 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
   .legend span:last-child{margin-left:0;width:100%}
   .mnav b{min-width:88px;font-size:15px}
   .days{height:110px}
-  table{font-size:12.5px}
-  .card h2{font-size:14px}
   .toast{bottom:calc(24px + env(safe-area-inset-bottom))}
+  .card h2{font-size:14px}
+
+  /* 표를 한 건씩 카드로 펼쳐서 읽기 쉽게 */
+  .tw{overflow-x:visible}
+  .tw table,.tw tbody,.tw tr,.tw td{display:block;width:100%}
+  .tw thead{display:none}
+  .tw tr{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#fff}
+  .tw tr:hover td{background:transparent}
+  .tw td{border:0;padding:3px 0;display:flex;gap:10px;align-items:baseline;
+         font-size:13.5px;line-height:1.5;max-width:none!important}
+  .tw td.e{display:none}
+  .tw td:before{content:attr(data-l);color:var(--sub);font-size:11.5px;font-weight:600;
+                flex:0 0 62px;max-width:62px}
+  .tw td[data-l=""]:before{display:none}
+  .tw td[data-l=""]{padding-top:8px;gap:8px}
+  .sub-t{display:inline;margin:0 0 0 6px}
 }
 
 /* 가로로 눕혔을 때 (아이폰 가로 = 폭 844~932px) */
@@ -392,7 +411,7 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
   </div>
 
   <div class="card">
-    <h2>일별 공부 시간 <small>최근 14일</small></h2>
+    <h2>일별 공부 시간 <small id="d-days-label">최근 14일</small></h2>
     <div class="days" id="d-days"></div>
   </div>
 
@@ -1182,27 +1201,34 @@ function drawToday(){
   $('#today-list').innerHTML = rows.length? table(rows,true) : '<div class="empty">아직 오늘 기록이 없습니다.</div>';
 }
 function table(rows, compact){
-  var head = '<div style="overflow-x:auto"><table><thead><tr>'
-    + (compact?'':'<th>날짜</th>')
-    + '<th>과목</th><th>유형</th><th>형태</th><th>교재 / 인강</th><th>진도</th><th>시간</th><th>정답률</th><th>메모</th><th></th></tr></thead><tbody>';
+  var cols = (compact?[]:['날짜']).concat(['과목','유형','형태','교재 / 인강','진도','시간','정답률','메모','']);
+  var head = '<div class="tw"><table><thead><tr>'
+    + cols.map(function(c){ return '<th>'+c+'</th>'; }).join('')
+    + '</tr></thead><tbody>';
   var body = rows.map(function(r){
     var acc = (r.qTotal>0 && r.qCorrect!=null) ? Math.round(r.qCorrect/r.qTotal*1000)/10+'%' : '';
     var q   = r.qTotal ? '<span style="color:var(--sub);font-size:11.5px"> ('+(r.qCorrect==null?'-':r.qCorrect)+'/'+r.qTotal+')</span>' : '';
     var subTxt = (r.subs&&r.subs.length)? '<span class="sub-t">'+esc(r.subs.join(' · '))+'</span>' : '';
-    return '<tr>'
-      + (compact?'':'<td style="white-space:nowrap;color:var(--sub)">'+r.date.slice(5)+'</td>')
-      + '<td><span class="tag" style="background:'+gColor(r.group)+'">'+esc(r.group)+'</span>'+subTxt+'</td>'
-      + '<td>'+esc(r.type)+'</td>'
-      + '<td style="color:var(--sub)">'+esc(r.mode||'자습')+'</td>'
-      + '<td>'+(r.material?esc(r.material):'<span style="color:#c5c1b8">—</span>')+'</td>'
-      + '<td style="color:var(--sub);font-size:12.5px">'
-        + (r.lecFrom? '<b style="color:var(--ink)">'+r.lecFrom+(r.lecTo&&r.lecTo!==r.lecFrom?'~'+r.lecTo:'')+'강</b>'+(r.range?'<br>':'') : '')
-        + esc(r.range)+'</td>'
-      + '<td style="white-space:nowrap;font-weight:600">'+hm(r.minutes)+'</td>'
-      + '<td style="white-space:nowrap">'+acc+q+'</td>'
-      + '<td style="color:var(--sub);font-size:12.5px;max-width:220px">'+esc(r.memo)+'</td>'
-      + '<td style="white-space:nowrap"><button class="btn sm ghost" onclick="__edit(\''+r.id+'\')">수정</button> '
-      + '<button class="btn sm danger" onclick="__del(\''+r.id+'\')">삭제</button></td></tr>';
+    var lec = r.lecFrom ? '<b>'+r.lecFrom+(r.lecTo&&r.lecTo!==r.lecFrom?'~'+r.lecTo:'')+'강</b>' : '';
+    var cells=[];
+    function C(label, html, style){
+      var plain = String(html==null?'':html).replace(/<[^>]*>/g,'').trim();
+      cells.push('<td data-l="'+label+'"'+(plain?'':' class="e"')
+        + (style?' style="'+style+'"':'')+'>'+(html||'')+'</td>');
+    }
+    if(!compact) C('날짜', r.date.slice(5), 'white-space:nowrap;color:var(--sub)');
+    C('과목', '<span class="tag" style="background:'+gColor(r.group)+'">'+esc(r.group)+'</span>'+subTxt);
+    C('유형', esc(r.type));
+    C('형태', esc(r.mode||'자습'), 'color:var(--sub)');
+    C('교재', r.material?esc(r.material):'');
+    C('진도', lec + (lec&&r.range?' ':'') + '<span style="color:var(--sub)">'+esc(r.range)+'</span>', 'font-size:12.5px');
+    C('시간', hm(r.minutes), 'white-space:nowrap;font-weight:600');
+    C('정답률', acc+q, 'white-space:nowrap');
+    C('메모', esc(r.memo), 'color:var(--sub);font-size:12.5px;max-width:220px');
+    cells.push('<td data-l="" style="white-space:nowrap">'
+      + '<button class="btn sm ghost" onclick="__edit(\''+r.id+'\')">수정</button> '
+      + '<button class="btn sm danger" onclick="__del(\''+r.id+'\')">삭제</button></td>');
+    return '<tr>'+cells.join('')+'</tr>';
   }).join('');
   return head + body + '</tbody></table></div>';
 }
@@ -1309,12 +1335,17 @@ function drawDash(){
   for(var i=start;i<400;i++){ if(dates[daysAgo(i)]) st++; else break; }
   $('#s-streak').textContent = st+'일';
 
-  var arr=[]; for(var j=13;j>=0;j--){ var d=daysAgo(j); arr.push([d, minutesOf(d)]); }
+  /* 화면이 좁으면 날짜 칸이 넘치므로 보여줄 일수를 줄인다 */
+  var nD = (window.innerWidth<430) ? 5 : (window.innerWidth<640 ? 7 : 14);
+  $('#d-days-label').textContent = '최근 '+nD+'일';
+  var arr=[]; for(var j=nD-1;j>=0;j--){ var d=daysAgo(j); arr.push([d, minutesOf(d)]); }
   var mx=Math.max.apply(null,[60].concat(arr.map(function(a){return a[1];})));
   $('#d-days').innerHTML = arr.map(function(a){
+    var md = a[0].slice(5).split('-');
+    var lb = (+md[0])+'/'+(+md[1]);
     return '<div class="d"><div class="dv">'+(a[1]?hshort(a[1]):'')+'</div>'
       + '<div class="col" style="height:'+(a[1]/mx*88)+'%;background:'+(a[1]?'var(--accent)':'#e8e5df')+'"></div>'
-      + '<div class="dl">'+a[0].slice(5).replace('-','/')+'</div></div>';
+      + '<div class="dl">'+lb+'</div></div>';
   }).join('');
 
   var rows=inPeriod();
@@ -1752,6 +1783,15 @@ $('#cl-logout').onclick = function(){
 };
 document.addEventListener('visibilitychange', function(){
   if(!document.hidden && cloudReady()) cloudSync(true);
+});
+
+/* 화면을 돌리거나 크기가 바뀌면 그래프를 다시 그린다 */
+var rsTimer=null;
+window.addEventListener('resize', function(){
+  clearTimeout(rsTimer);
+  rsTimer=setTimeout(function(){
+    if(!$('#tab-dash').classList.contains('hide')) drawDash();
+  }, 200);
 });
 
 /* ================= 시작 ================= */
