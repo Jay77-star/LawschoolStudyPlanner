@@ -1,0 +1,1776 @@
+<meta charset="utf-8">
+<title>❤️ 로스쿨 공부 기록</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2f5d50">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="공부기록">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB4PSI1MCIgeT0iNTIiIGZvbnQtc2l6ZT0iODIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj7inaTvuI88L3RleHQ+PC9zdmc+">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB4PSI1MCIgeT0iNTIiIGZvbnQtc2l6ZT0iODIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj7inaTvuI88L3RleHQ+PC9zdmc+">
+<style>
+:root{
+  --bg:#f6f5f2; --card:#fff; --ink:#1c1b19; --sub:#6f6b64; --line:#e3e0d9;
+  --accent:#2f5d50; --accent-soft:#e7efec;
+  /* 과목 색: 공법=주황, 민사법=보라, 형사법=녹색, 상법=분홍, 환경법=파랑 */
+  --gong:#b56a26; --minsa:#6f4f9c; --hyeong:#5c8a33; --sang:#b56081; --hwan:#356f95;
+  --warn:#b4553a;
+  --c0:#eeece7; --c1:#cfdcd6; --c2:#8fb3a8; --c3:#2f5d50;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  font-size:15px;line-height:1.55;
+  -webkit-text-size-adjust:100%;text-size-adjust:100%;
+  -webkit-tap-highlight-color:rgba(47,93,80,.12);
+  overflow-wrap:break-word}
+header{background:var(--accent);color:#fff;
+  padding-top:max(16px, env(safe-area-inset-top));
+  padding-right:max(24px, env(safe-area-inset-right));
+  padding-left:max(24px, env(safe-area-inset-left));
+  padding-bottom:0}
+.htop{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+h1{margin:0;font-size:19px;font-weight:700;letter-spacing:-.02em}
+.dd{display:flex;gap:8px;flex-wrap:wrap}
+.dd span{font-size:12.5px;background:rgba(255,255,255,.14);padding:3px 11px;border-radius:14px;
+  white-space:nowrap;letter-spacing:-.01em}
+.dd span b{font-weight:700;font-variant-numeric:tabular-nums}
+nav{display:flex;gap:2px;flex-wrap:wrap}
+nav button{background:transparent;border:0;color:#fff;opacity:.65;padding:9px 15px;font-size:14px;
+  cursor:pointer;border-radius:8px 8px 0 0;font-family:inherit}
+nav button.on{background:var(--bg);color:var(--accent);opacity:1;font-weight:700}
+main{max-width:1080px;margin:0 auto;
+  padding-top:22px;
+  padding-right:max(22px, env(safe-area-inset-right));
+  padding-left:max(22px, env(safe-area-inset-left));
+  padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:16px}
+.card h2{margin:0 0 14px;font-size:15px;font-weight:700;letter-spacing:-.01em;display:flex;
+  align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.card h2 small{font-weight:400;color:var(--sub);font-size:12px}
+label{display:block;font-size:12.5px;color:var(--sub);margin-bottom:5px;font-weight:600}
+input,select,textarea,button{font-family:inherit;font-size:14px}
+input[type=text],input[type=number],input[type=date],select,textarea{
+  width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+textarea{resize:vertical;min-height:52px}
+.row{display:grid;gap:14px;margin-bottom:14px}
+.r2{grid-template-columns:1fr 1fr}
+.r3{grid-template-columns:1fr 1fr 1fr}
+.r4{grid-template-columns:1fr 1fr 1fr 1fr}
+@media(max-width:760px){.r2,.r3,.r4{grid-template-columns:1fr}}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{padding:8px 15px;border:1px solid var(--line);background:#fff;border-radius:20px;cursor:pointer;
+  font-size:13.5px;color:var(--sub);transition:.12s}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.chip.sub{border-style:dashed}
+.chip.sub.on{border-style:solid}
+.btn{padding:10px 18px;border:0;border-radius:8px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+.btn:hover{filter:brightness(1.1)}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:500}
+.btn.sm{padding:5px 11px;font-size:12.5px}
+.btn.danger{background:#fff;border:1px solid var(--line);color:var(--warn)}
+.timer{display:flex;align-items:center;gap:12px;background:var(--accent-soft);border-radius:10px;padding:12px 16px}
+.tdisp{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em;min-width:112px;color:var(--accent)}
+.stat{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:760px){.stat{grid-template-columns:1fr 1fr}}
+.stat div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 17px}
+.stat b{display:block;font-size:25px;font-weight:700;letter-spacing:-.03em;margin-top:2px}
+.stat span{font-size:12px;color:var(--sub)}
+.bar{margin-bottom:9px}
+.bar .lb{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px}
+.bar .lb i{font-style:normal;color:var(--sub);font-variant-numeric:tabular-nums}
+.bar .tr{height:9px;background:#eeece7;border-radius:5px;overflow:hidden}
+.bar .fl{height:100%;border-radius:5px;background:var(--accent);transition:width .3s}
+.days{display:flex;gap:7px;align-items:flex-end;height:130px;padding-top:8px}
+.days .d{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+.days .col{width:100%;background:var(--accent);border-radius:5px 5px 0 0;min-height:2px}
+.days .dl{font-size:10.5px;color:var(--sub);white-space:nowrap}
+.days .dv{font-size:10.5px;color:var(--sub);font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;padding:8px 9px;border-bottom:2px solid var(--line);color:var(--sub);font-size:12px;white-space:nowrap}
+td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:hover td{background:#faf9f7}
+.tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11.5px;font-weight:600;color:#fff}
+.sub-t{display:block;font-size:11.5px;color:var(--sub);margin-top:2px}
+.empty{color:var(--sub);text-align:center;padding:34px 0;font-size:13.5px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);
+  color:#fff;padding:11px 22px;border-radius:9px;font-size:13.5px;opacity:0;transition:.25s;z-index:99;pointer-events:none}
+.toast.on{transform:translateX(-50%) translateY(0);opacity:1}
+.hint{font-size:12px;color:var(--sub);margin-top:6px;line-height:1.6}
+.pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);
+  border-radius:18px;padding:5px 8px 5px 13px;font-size:13px;margin:0 6px 6px 0}
+.pill button{border:0;background:transparent;color:var(--sub);cursor:pointer;font-size:15px;line-height:1;padding:0 3px}
+.pill button:hover{color:var(--warn)}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+.hide{display:none!important}
+.streak{background:linear-gradient(135deg,#2f5d50,#3f8f8a);color:#fff;border:0!important}
+.streak span{color:#fff;opacity:.8}
+.plan{display:flex;align-items:flex-start;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.plan:last-child{border-bottom:0}
+.plan input[type=checkbox]{width:18px;height:18px;margin-top:2px;accent-color:var(--accent);cursor:pointer;flex:0 0 auto}
+.plan .tx{flex:1;font-size:14px}
+.plan.done .tx{color:#a9a49c;text-decoration:line-through}
+.plan .x{border:0;background:transparent;color:#c5c1b8;cursor:pointer;font-size:16px;padding:0 4px}
+.plan .x:hover{color:var(--warn)}
+.pbar{height:7px;background:#eeece7;border-radius:4px;overflow:hidden;margin-top:10px}
+.pbar div{height:100%;background:var(--accent);border-radius:4px;transition:width .3s}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .wd{text-align:center;font-size:11.5px;color:var(--sub);padding:4px 0;font-weight:600}
+.cal .cell{aspect-ratio:1/1;border-radius:9px;background:var(--c0);padding:6px;cursor:pointer;
+  display:flex;flex-direction:column;justify-content:space-between;border:2px solid transparent;
+  transition:.12s;min-height:56px;position:relative}
+.cal .cell:hover{border-color:var(--accent)}
+.cal .cell.blank{background:transparent;cursor:default;border:0}
+.cal .cell.blank:hover{border:0}
+.cal .cell .n{font-size:12px;font-weight:600;color:var(--sub);line-height:1}
+.cal .cell .v{font-size:10.5px;color:var(--sub);font-variant-numeric:tabular-nums;line-height:1.2}
+.cal .cell.l1{background:var(--c1)}
+.cal .cell.l2{background:var(--c2)}
+.cal .cell.l2 .n,.cal .cell.l2 .v{color:#eef4f1}
+.cal .cell.l3{background:var(--c3)}
+.cal .cell.l3 .n,.cal .cell.l3 .v{color:#fff}
+.cal .cell.today{border-color:var(--ink)}
+.cal .cell.sel{border-color:var(--warn)}
+.cal .cell .ck{position:absolute;top:5px;right:6px;font-size:11px;color:#fff;font-weight:700}
+.cal .cell.fut{opacity:.45}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--sub);margin-top:14px;align-items:center}
+.legend i{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:5px}
+.mnav{display:flex;align-items:center;gap:12px}
+.mnav b{font-size:16px;min-width:112px;text-align:center;font-variant-numeric:tabular-nums}
+.fsbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff8ec;border:1px solid #f0e0c0;
+  border-radius:10px;padding:11px 14px;margin-bottom:16px;font-size:13px}
+.fsbar.ok{background:var(--accent-soft);border-color:#cfe0d9}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#c5c1b8;margin-right:6px;vertical-align:1px}
+.dot.on{background:#5c8a33}
+.dot.err{background:var(--warn)}
+
+/* 손가락으로 쓰는 기기: 입력 시 화면이 확대되지 않도록 (가로 모드 포함) */
+@media (hover:none) and (pointer:coarse){
+  input[type=text],input[type=number],input[type=date],select,textarea{font-size:16px}
+  .btn{padding:11px 16px}
+  .plan input[type=checkbox]{width:22px;height:22px}
+  .chip{padding:9px 15px;font-size:14px}
+}
+
+@media(max-width:640px){
+  header{padding-top:max(12px,env(safe-area-inset-top));
+         padding-right:max(14px,env(safe-area-inset-right));
+         padding-left:max(14px,env(safe-area-inset-left))}
+  h1{font-size:17px}
+  .htop{gap:8px;margin-bottom:8px}
+  .dd span{font-size:11.5px;padding:2px 9px}
+  nav{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav button{white-space:nowrap;padding:9px 12px;font-size:13.5px}
+  main{padding-top:14px;
+       padding-right:max(13px,env(safe-area-inset-right));
+       padding-left:max(13px,env(safe-area-inset-left));
+       padding-bottom:calc(32px + env(safe-area-inset-bottom))}
+  .card{padding:15px 14px;border-radius:11px}
+  input[type=text],input[type=number],input[type=date],select,textarea{padding:11px}
+  .timer{padding:10px 12px;gap:9px}
+  .timer .btn.sm{padding:8px 12px}
+  .tdisp{font-size:21px;min-width:92px}
+  .stat{grid-template-columns:1fr 1fr}
+  .stat b{font-size:22px}
+  .cal{gap:4px}
+  .cal .cell{min-height:42px;padding:4px;border-radius:7px}
+  .cal .cell .n{font-size:11px}
+  .cal .cell .v{font-size:9px;line-height:1.15}
+  .cal .cell .ck{font-size:9px;top:3px;right:4px}
+  .legend{gap:9px;font-size:11px}
+  .legend span:last-child{margin-left:0;width:100%}
+  .mnav b{min-width:88px;font-size:15px}
+  .days{height:110px}
+  table{font-size:12.5px}
+  .card h2{font-size:14px}
+  .toast{bottom:calc(24px + env(safe-area-inset-bottom))}
+}
+
+/* 가로로 눕혔을 때 (아이폰 가로 = 폭 844~932px) */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .stat{grid-template-columns:repeat(4,1fr)}
+  .cal .cell{min-height:0}
+  .days{height:96px}
+}
+</style>
+
+<header>
+  <div class="htop">
+    <h1>로스쿨 공부 기록</h1>
+    <div class="dd" id="dday"></div>
+  </div>
+  <nav>
+    <button class="on" data-t="log">기록하기</button>
+    <button data-t="cal">달력</button>
+    <button data-t="dash">통계</button>
+    <button data-t="list">기록 목록</button>
+    <button data-t="mat">교재 · 인강</button>
+    <button data-t="set">설정</button>
+  </nav>
+</header>
+
+<main>
+<div class="fsbar hide" id="fsbar"></div>
+
+<!-- ============ 기록하기 ============ -->
+<section id="tab-log">
+  <div class="card">
+    <h2><span>오늘의 계획 <small id="p-date"></small></span>
+        <span><button class="btn sm ghost" id="p-copy">지난 계획 불러오기</button></span></h2>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input type="text" id="p-new" placeholder="예: 민법 인강 3강 / 형소법 기출 40문항">
+      <button class="btn" id="p-add" style="white-space:nowrap">추가</button>
+    </div>
+    <div id="p-list"></div>
+    <div class="pbar"><div id="p-bar" style="width:0%"></div></div>
+    <div class="hint" id="p-msg"></div>
+  </div>
+
+  <div class="card">
+    <h2>공부 기록</h2>
+
+    <div class="row r2">
+      <div>
+        <label>날짜</label>
+        <input type="date" id="f-date">
+      </div>
+      <div>
+        <label>학습 형태</label>
+        <div class="chips" id="f-mode">
+          <div class="chip on" data-v="자습">자습</div>
+          <div class="chip" data-v="인강">인강</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label>시험 유형 <small style="font-weight:400;color:var(--sub)" id="f-type-hint"></small></label>
+      <div class="chips" id="f-type"></div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label>과목 (상위분류)</label>
+      <div class="chips" id="f-group"></div>
+    </div>
+
+    <div style="margin-bottom:14px" id="f-sub-wrap">
+      <label>세부 과목 <small style="font-weight:400;color:var(--sub)">— 여러 개 고를 수 있고, 안 골라도 됩니다 (안 고르면 상위분류로 기록)</small></label>
+      <div class="chips" id="f-sub"></div>
+    </div>
+
+    <div class="row r2">
+      <div>
+        <label id="f-mat-label">교재</label>
+        <select id="f-material"><option value="">— 과목을 먼저 선택하세요 —</option></select>
+        <div class="hint">목록에 없으면 <b>+ 새로 추가</b>를 고르세요.</div>
+      </div>
+      <div>
+        <label>진도 범위</label>
+        <input type="text" id="f-range" placeholder="예: 제3편 물권법 p.120~180 / 기출 2020~2022">
+      </div>
+    </div>
+
+    <div class="row r2 hide" id="f-lec-wrap">
+      <div>
+        <label>오늘 들은 강</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" id="f-lec-from" min="1" placeholder="시작">
+          <span style="color:var(--sub)">~</span>
+          <input type="number" id="f-lec-to" min="1" placeholder="끝">
+          <span style="color:var(--sub);white-space:nowrap">강</span>
+        </div>
+        <div class="hint" id="f-lec-hint">한 강만 들었으면 두 칸에 같은 숫자를 넣거나 시작만 채우세요.</div>
+      </div>
+      <div>
+        <label>현재 진도</label>
+        <div id="f-lec-prog"></div>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="row r2">
+      <div>
+        <label>공부 시간</label>
+        <div class="timer">
+          <div class="tdisp" id="t-disp">00:00:00</div>
+          <button class="btn sm" id="t-start">시작</button>
+          <button class="btn sm ghost" id="t-reset">초기화</button>
+        </div>
+        <div class="hint">스톱워치를 멈추면 오른쪽 칸에 자동으로 채워집니다.</div>
+      </div>
+      <div>
+        <label>시간 (분) — 직접 입력해도 됩니다</label>
+        <input type="number" id="f-min" min="0" step="5" placeholder="예: 90">
+        <div class="chips" style="margin-top:8px">
+          <div class="chip" data-add="30">+30분</div>
+          <div class="chip" data-add="60">+1시간</div>
+          <div class="chip" data-add="90">+1시간 30분</div>
+          <div class="chip" data-add="120">+2시간</div>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="row r3">
+      <div>
+        <label>푼 문항 수</label>
+        <input type="number" id="f-qt" min="0" placeholder="선택 입력">
+      </div>
+      <div>
+        <label>맞은 문항 수</label>
+        <input type="number" id="f-qc" min="0" placeholder="선택 입력">
+      </div>
+      <div>
+        <label>정답률</label>
+        <input type="text" id="f-acc" readonly placeholder="자동 계산" style="background:#faf9f7">
+      </div>
+    </div>
+
+    <div style="margin-bottom:18px">
+      <label>메모</label>
+      <textarea id="f-memo" placeholder="예: 행정심판 부분 약함 / 다음에 판례 정리 필요"></textarea>
+    </div>
+
+    <button class="btn" id="f-save" style="width:100%;padding:13px">기록 저장</button>
+    <button class="btn ghost hide" id="f-cancel" style="width:100%;margin-top:8px">수정 취소</button>
+  </div>
+
+  <div class="card">
+    <h2>오늘의 기록 <small id="today-sum"></small></h2>
+    <div id="today-list"></div>
+  </div>
+</section>
+
+<!-- ============ 달력 ============ -->
+<section id="tab-cal" class="hide">
+  <div class="card">
+    <h2>
+      <span class="mnav">
+        <button class="btn sm ghost" id="c-prev">‹</button>
+        <b id="c-title"></b>
+        <button class="btn sm ghost" id="c-next">›</button>
+        <button class="btn sm ghost" id="c-now">이번 달</button>
+      </span>
+      <small id="c-sum"></small>
+    </h2>
+    <div class="cal" id="c-grid"></div>
+    <div class="legend">
+      <span><i style="background:var(--c3)"></i>계획 전부 완료</span>
+      <span><i style="background:var(--c2)"></i>절반 이상</span>
+      <span><i style="background:var(--c1)"></i>조금이라도 함</span>
+      <span><i style="background:var(--c0)"></i>기록 없음</span>
+      <span style="margin-left:auto">날짜를 누르면 그날 내용이 아래에 나옵니다</span>
+    </div>
+  </div>
+  <div class="card" id="c-detail-card">
+    <h2><span id="c-dtitle">날짜를 선택하세요</span><small id="c-dsum"></small></h2>
+    <div id="c-detail"><div class="empty">달력에서 날짜를 눌러보세요.</div></div>
+  </div>
+</section>
+
+<!-- ============ 통계 ============ -->
+<section id="tab-dash" class="hide">
+  <div class="stat" style="margin-bottom:16px">
+    <div><span>오늘</span><b id="s-today">0h</b></div>
+    <div><span>이번 주</span><b id="s-week">0h</b></div>
+    <div><span>이번 달</span><b id="s-month">0h</b></div>
+    <div class="streak"><span>연속 기록</span><b id="s-streak">0일</b></div>
+  </div>
+
+  <div class="card">
+    <h2>기간 선택</h2>
+    <div class="chips" id="d-period">
+      <div class="chip" data-v="7">최근 7일</div>
+      <div class="chip on" data-v="30">최근 30일</div>
+      <div class="chip" data-v="90">최근 90일</div>
+      <div class="chip" data-v="0">전체</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>일별 공부 시간 <small>최근 14일</small></h2>
+    <div class="days" id="d-days"></div>
+  </div>
+
+  <div class="row r2">
+    <div class="card" style="margin:0">
+      <h2>상위분류별 누적</h2>
+      <div id="d-group"></div>
+      <h2 style="margin-top:20px">세부 과목별 누적 <small>복수 선택은 시간을 나눠 계산</small></h2>
+      <div id="d-subject"></div>
+    </div>
+    <div class="card" style="margin:0">
+      <h2>시험유형별 누적</h2>
+      <div id="d-type"></div>
+      <h2 style="margin-top:20px">학습 형태</h2>
+      <div id="d-mode"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>상위분류별 정답률 <small>문항 수를 기록한 경우만</small></h2>
+    <div id="d-acc"></div>
+  </div>
+
+  <div class="card">
+    <h2>인강 진도율 <small>전체 기간 기준</small></h2>
+    <div id="d-lec"></div>
+  </div>
+
+  <div class="card">
+    <h2>교재 · 인강별 투입 시간</h2>
+    <div id="d-mat"></div>
+  </div>
+</section>
+
+<!-- ============ 기록 목록 ============ -->
+<section id="tab-list" class="hide">
+  <div class="card">
+    <h2>필터</h2>
+    <div class="row r4" style="margin-bottom:0">
+      <div><label>과목</label><select id="l-subject"></select></div>
+      <div><label>시험유형</label><select id="l-type"></select></div>
+      <div><label>학습형태</label><select id="l-mode"></select></div>
+      <div><label>검색 (교재·범위·메모)</label><input type="text" id="l-q" placeholder="키워드"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>기록 <small id="l-count"></small></h2>
+    <div id="l-table"></div>
+  </div>
+</section>
+
+<!-- ============ 교재·인강 ============ -->
+<section id="tab-mat" class="hide">
+  <div class="card">
+    <h2>교재 · 인강 관리</h2>
+    <div class="hint" style="margin:0 0 14px">상위분류 단위로 등록합니다. (예: 공법 → 헌법 기본강의, 행정법 사례연습)</div>
+    <div class="row r2" style="margin-bottom:14px">
+      <div><label>상위분류</label><select id="m-subject"></select></div>
+      <div><label>종류</label>
+        <div class="chips" id="m-kind">
+          <div class="chip on" data-v="books">교재</div>
+          <div class="chip" data-v="lectures">인강</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label>새로 추가</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="m-new" placeholder="예: 헌법 기본강의 / OOO 형법 최신판례 특강">
+        <input type="number" id="m-total" min="1" placeholder="총 강수" style="max-width:120px">
+        <button class="btn" id="m-add" style="white-space:nowrap">추가</button>
+      </div>
+      <div class="hint" id="m-total-hint">총 강수는 인강에만 씁니다. 모르면 비워두고 나중에 넣어도 됩니다.</div>
+    </div>
+    <div id="m-list"></div>
+  </div>
+</section>
+
+<!-- ============ 설정 ============ -->
+<section id="tab-set" class="hide">
+  <div class="card">
+    <h2>시험 유형 관리</h2>
+    <div class="hint" style="margin:0 0 12px">
+      기록형 · 사례형 · 선택형은 고정입니다. 그 밖의 유형(최신판례, 강사별 특강 등)은 자유롭게 추가·삭제하세요.
+    </div>
+    <div id="ty-list" style="margin-bottom:14px"></div>
+    <div class="row r3" style="margin-bottom:0">
+      <div><label>유형 이름</label><input type="text" id="ty-name" placeholder="예: 최신판례, 사례연습, 진도별모의고사"></div>
+      <div><label>표시 위치</label>
+        <select id="ty-only">
+          <option value="1">인강에서만 표시</option>
+          <option value="0">자습·인강 모두 표시</option>
+        </select></div>
+      <div style="display:flex;align-items:flex-end"><button class="btn" id="ty-add" style="width:100%">추가</button></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>D-day</h2>
+    <div class="hint" style="margin:0 0 12px">날짜가 지나면 목록에서 자동으로 사라집니다.</div>
+    <div id="dd-list" style="margin-bottom:14px"></div>
+    <div class="row r3" style="margin-bottom:0">
+      <div><label>이름</label><input type="text" id="dd-name" placeholder="예: 2학기 기말고사"></div>
+      <div><label>날짜</label><input type="date" id="dd-date"></div>
+      <div style="display:flex;align-items:flex-end"><button class="btn" id="dd-add" style="width:100%">추가</button></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>하루 목표 시간</h2>
+    <div class="hint" style="margin:0 0 12px">통계 참고 지표입니다. 달력의 색은 <b>계획 완료율</b> 기준입니다.</div>
+    <div style="display:flex;gap:8px;align-items:center;max-width:260px">
+      <input type="number" id="g-hour" min="1" max="18" step="0.5"><span style="white-space:nowrap">시간</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>OneDrive 계정 동기화 <small>맥 · 아이폰 함께 쓰기</small></h2>
+    <div class="hint" style="margin:0 0 12px">
+      Microsoft 계정으로 로그인하면 OneDrive에 기록이 저장되어, 맥과 아이폰 어디서 입력해도 같은 내용이 보입니다.
+      두 기기에서 따로 입력해도 기록이 사라지지 않도록 항목 단위로 합쳐집니다.
+    </div>
+    <div id="cl-state" class="hint" style="margin:0 0 12px"></div>
+    <div class="chips" style="margin-bottom:12px">
+      <button class="btn" id="cl-login">Microsoft 계정 로그인</button>
+      <button class="btn ghost" id="cl-sync">지금 동기화</button>
+      <button class="btn ghost" id="cl-logout">로그아웃</button>
+    </div>
+    <details>
+      <summary style="cursor:pointer;font-size:12.5px;color:var(--sub)">최초 1회 설정 (앱 ID 입력)</summary>
+      <div style="margin-top:10px">
+        <label>앱(클라이언트) ID</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="cl-id" placeholder="00000000-0000-0000-0000-000000000000">
+          <button class="btn ghost" id="cl-save" style="white-space:nowrap">저장</button>
+        </div>
+        <div class="hint">설명서의 “설치 안내”를 따라 한 번만 만들면 됩니다. 이 주소를 리디렉션 URI로 등록하세요:</div>
+        <div class="hint" style="word-break:break-all;background:var(--accent-soft);padding:8px 10px;border-radius:7px;margin-top:6px" id="cl-uri"></div>
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>OneDrive 폴더 자동 저장 <small>맥에서 파일로 백업</small></h2>
+    <div class="hint" style="margin:0 0 12px">
+      기록은 항상 이 브라우저에 먼저 저장됩니다(오프라인 포함). 아래에서 지정한 파일에도 함께 씁니다.
+    </div>
+    <div class="chips" style="margin-bottom:10px">
+      <button class="btn" id="fs-connect">폴더 파일 지정 / 다시 지정</button>
+      <button class="btn ghost" id="fs-load">지정한 파일에서 불러오기</button>
+      <button class="btn ghost" id="fs-off">연결 해제</button>
+    </div>
+    <div class="hint" id="fs-info"></div>
+  </div>
+
+  <div class="card">
+    <h2>백업 · 내보내기</h2>
+    <div class="chips">
+      <button class="btn ghost" id="x-json">백업 파일 저장 (.json)</button>
+      <button class="btn ghost" id="x-csv">엑셀용 내보내기 (.csv)</button>
+      <button class="btn ghost" id="x-import">백업 불러오기</button>
+      <input type="file" id="x-file" accept=".json" class="hide">
+    </div>
+    <div class="hint" id="x-info" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <h2>초기화</h2>
+    <div class="hint" style="margin:0 0 12px">모든 기록·계획·교재 목록이 삭제됩니다. 되돌릴 수 없습니다.</div>
+    <button class="btn danger" id="x-clear">전체 삭제</button>
+  </div>
+</section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= 불변 규칙 ================= */
+/* 상위분류 → 세부 과목 */
+var GROUPS = {
+  '공법':   ['헌법','행정법'],
+  '민사법': ['민법','민사소송법'],
+  '형사법': ['형법총론','형법각론','형사소송법'],
+  '상법':   [],
+  '환경법': []
+};
+var GROUP_ORDER = ['공법','민사법','형사법','상법','환경법'];
+/* 기본 시험유형별 사용 가능한 상위분류 */
+var BASE_TYPES = {
+  '기록형': { groups:['공법','민사법','형사법'], sub:false },
+  '사례형': { groups:['공법','민사법','형사법','상법','환경법'], sub:true },
+  '선택형': { groups:['공법','민사법','형사법','상법'], sub:true }
+};
+var GCOLOR = {'공법':'var(--gong)','민사법':'var(--minsa)','형사법':'var(--hyeong)','상법':'var(--sang)','환경법':'var(--hwan)'};
+function gColor(g){ return GCOLOR[g] || 'var(--accent)'; }
+function groupOfSub(s){
+  for(var g in GROUPS) if(GROUPS[g].indexOf(s)!==-1) return g;
+  return null;
+}
+
+/* ================= 유틸 ================= */
+function $(s){ return document.querySelector(s); }
+function $$(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function toast(m){ var t=$('#toast'); t.textContent=m; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},1900); }
+function ymd(d){ return d.toLocaleDateString('sv-SE'); }
+function today(){ return ymd(new Date()); }
+function daysAgo(n){ var d=new Date(); d.setDate(d.getDate()-n); return ymd(d); }
+function weekStart(){ var d=new Date(); var w=(d.getDay()+6)%7; d.setDate(d.getDate()-w); return ymd(d); }
+function monthStart(){ var d=new Date(); d.setDate(1); return ymd(d); }
+function hm(min){ min=Math.round(min||0); var h=Math.floor(min/60), m=min%60;
+  if(h&&m) return h+'시간 '+m+'분'; if(h) return h+'시간'; return m+'분'; }
+function hshort(min){ min=Math.round(min||0); var h=min/60; return h>=1? (Math.round(h*10)/10)+'h' : min+'m'; }
+function dayDiff(a,b){ var p=a.split('-'), q=b.split('-');
+  return Math.round((Date.UTC(+q[0],+q[1]-1,+q[2])-Date.UTC(+p[0],+p[1]-1,+p[2]))/86400000); }
+
+/* ================= 저장소 ================= */
+var KEY = 'lawstudy.v1';
+var D = load();
+function now(){ return Date.now(); }
+function blank(){
+  return { version:4, books:{}, lectures:{}, logs:[], plans:{}, ddays:null, types:null,
+           settings:{goalMin:600}, tomb:{}, updatedAt:0 };
+}
+function kill(key){ D.tomb=D.tomb||{}; D.tomb[key]=now(); }
+/* v1/v2 → v3 → v4 변환 */
+var LEGACY = {'헌법':'공법','행정법':'공법','민법':'민사법','민사소송법':'민사법',
+              '형법':'형사법','형사소송법':'형사법','공법':'공법','민사법':'민사법','형사법':'형사법',
+              '상법':'상법','환경법':'환경법'};
+function migrate(o){
+  if(!(o.version>=3)){
+    (o.logs||[]).forEach(function(r){
+      if(r.group) return;
+      var s=r.subject, g=LEGACY[s]||'공법';
+      r.group=g;
+      r.subs = (s===g) ? [] : [s];   // 옛 '형법'은 세부항목으로 그대로 보존
+      delete r.subject;
+    });
+    ['books','lectures'].forEach(function(k){
+      var src=o[k]||{}, out={};
+      Object.keys(src).forEach(function(s){
+        var g=LEGACY[s]||s;
+        out[g]=(out[g]||[]).concat(src[s].filter(function(x){ return (out[g]||[]).indexOf(x)===-1; }));
+      });
+      o[k]=out;
+    });
+    o.version=3;
+  }
+  if(!(o.version>=4)){
+    /* 교재·인강 목록: 문자열 → {name, total} */
+    ['books','lectures'].forEach(function(k){
+      var src=o[k]||{};
+      Object.keys(src).forEach(function(g){
+        src[g]=(src[g]||[]).map(function(x){
+          return (typeof x==='string') ? {name:x, total:0} : x;
+        });
+      });
+      o[k]=src;
+    });
+    o.version=4;
+  }
+  return o;
+}
+function load(){
+  var o=null;
+  try{ var r=localStorage.getItem(KEY); if(r) o=JSON.parse(r); }catch(e){}
+  var b=blank();
+  if(o){ o=migrate(o);
+    b.books=o.books||{}; b.lectures=o.lectures||{}; b.logs=o.logs||[];
+    b.plans=o.plans||{}; b.ddays=o.ddays||null; b.types=o.types||null;
+    b.settings=Object.assign({goalMin:600}, o.settings||{});
+    b.tomb=o.tomb||{}; b.updatedAt=o.updatedAt||0; }
+  if(!b.ddays) b.ddays=[
+    {id:uid(), name:'변호사시험', date:'2027-01-12'},
+    {id:uid(), name:'10월 모의고사', date:'2026-10-16'}
+  ];
+  if(!b.types) b.types=[{id:uid(), name:'최신판례', lectureOnly:true}];
+  return b;
+}
+function save(){
+  D.updatedAt = now();
+  try{ localStorage.setItem(KEY, JSON.stringify(D)); }
+  catch(e){ alert('브라우저 저장에 실패했습니다. 저장 공간을 확인해 주세요.'); }
+  fsQueue();
+  cloudQueue();
+}
+
+/* ===== 두 기기 병합 ===== */
+function mergeDoc(a, b){
+  a=migrate(a||blank()); b=migrate(b||blank());
+  var out=blank();
+  var tomb={};
+  [a.tomb||{}, b.tomb||{}].forEach(function(t){
+    Object.keys(t).forEach(function(k){ if(!tomb[k]||t[k]>tomb[k]) tomb[k]=t[k]; });
+  });
+  out.tomb=tomb;
+  function dead(key, mt){ var t=tomb[key]; return t!=null && t>=(mt||0); }
+
+  /* 기록: id 기준, 나중에 고친 쪽이 이김 */
+  var lm={};
+  [a.logs||[], b.logs||[]].forEach(function(arr){
+    arr.forEach(function(r){
+      if(!r || !r.id) return;
+      var cur=lm[r.id];
+      if(!cur || (r.mt||0) > (cur.mt||0)) lm[r.id]=r;
+    });
+  });
+  out.logs=Object.keys(lm).map(function(k){return lm[k];})
+    .filter(function(r){ return !dead('log:'+r.id, r.mt); });
+
+  /* 계획: 날짜 + id 기준 */
+  var pm={};
+  [a.plans||{}, b.plans||{}].forEach(function(pl){
+    Object.keys(pl).forEach(function(d){
+      (pl[d]||[]).forEach(function(x){
+        if(!x || !x.id) return;
+        var k=d+'|'+x.id, cur=pm[k];
+        if(!cur || (x.mt||0) > (cur.it.mt||0)) pm[k]={d:d, it:x};
+      });
+    });
+  });
+  out.plans={};
+  Object.keys(pm).forEach(function(k){
+    var d=pm[k].d, it=pm[k].it;
+    if(dead('plan:'+d+':'+it.id, it.mt)) return;
+    (out.plans[d]=out.plans[d]||[]).push(it);
+  });
+
+  /* D-day, 시험유형: id 기준 */
+  function byId(arrs, prefix){
+    var m={};
+    arrs.forEach(function(arr){ (arr||[]).forEach(function(x){
+      if(!x||!x.id) return;
+      var cur=m[x.id];
+      if(!cur || (x.mt||0) > (cur.mt||0)) m[x.id]=x;
+    });});
+    return Object.keys(m).map(function(k){return m[k];})
+      .filter(function(x){ return !dead(prefix+x.id, x.mt); });
+  }
+  out.ddays = byId([a.ddays, b.ddays], 'dd:');
+  out.types = byId([a.types, b.types], 'ty:');
+
+  /* 교재·인강: 상위분류 + 이름 기준, 총 강수는 큰 값 */
+  ['books','lectures'].forEach(function(kind){
+    var m={};
+    [a[kind]||{}, b[kind]||{}].forEach(function(src){
+      Object.keys(src).forEach(function(g){
+        (src[g]||[]).forEach(function(it){
+          if(!it||!it.name) return;
+          var k=g+'|'+it.name, cur=m[k];
+          if(!cur) m[k]={g:g, it:{name:it.name, total:it.total||0}};
+          else if((it.total||0) > (cur.it.total||0)) cur.it.total=it.total||0;
+        });
+      });
+    });
+    out[kind]={};
+    Object.keys(m).forEach(function(k){
+      var g=m[k].g, it=m[k].it;
+      if(dead('mat:'+kind+':'+g+':'+it.name, 0)) return;
+      (out[kind][g]=out[kind][g]||[]).push(it);
+    });
+  });
+
+  var newer = (a.updatedAt||0) >= (b.updatedAt||0) ? a : b;
+  out.settings = Object.assign({goalMin:600}, newer.settings||{});
+  out.updatedAt = Math.max(a.updatedAt||0, b.updatedAt||0);
+  return out;
+}
+function sameDoc(x,y){
+  try{ return JSON.stringify(x)===JSON.stringify(y); }catch(e){ return false; }
+}
+
+/* ================= 시험유형 ================= */
+function typeList(mode){
+  var out = Object.keys(BASE_TYPES).slice();          // 기록형, 사례형, 선택형
+  D.types.forEach(function(t){
+    if(t.lectureOnly && mode!=='인강') return;
+    out.push(t.name);
+  });
+  return out;
+}
+function typeSpec(name){
+  if(BASE_TYPES[name]) return BASE_TYPES[name];
+  return { groups: GROUP_ORDER.slice(), sub:true };   // 사용자 정의 유형은 전부 허용
+}
+function drawTypeAdmin(){
+  var el=$('#ty-list'); if(!el) return;
+  var fixed = Object.keys(BASE_TYPES).map(function(n){
+    return '<span class="pill" style="background:#faf9f7">'+n
+      +' <span style="color:var(--sub);font-size:11.5px">고정</span></span>'; }).join('');
+  var mine = D.types.map(function(t){
+    return '<span class="pill">'+esc(t.name)
+      +' <span style="color:var(--sub);font-size:11.5px">'+(t.lectureOnly?'인강 전용':'공용')+'</span>'
+      +'<button onclick="__tydel(\''+t.id+'\')">×</button></span>'; }).join('');
+  el.innerHTML = fixed + mine;
+}
+window.__tydel = function(id){
+  var t=null; D.types.forEach(function(x){ if(x.id===id) t=x; });
+  if(!t) return;
+  var used = D.logs.some(function(r){ return r.type===t.name; });
+  if(used && !confirm('이 유형으로 저장된 기록이 있습니다. 유형을 지워도 기록은 남습니다. 계속할까요?')) return;
+  kill('ty:'+id);
+  D.types=D.types.filter(function(x){return x.id!==id;});
+  save(); drawTypeAdmin(); drawTypes();
+};
+$('#ty-add').onclick = function(){
+  var n=$('#ty-name').value.trim();
+  if(!n) return toast('유형 이름을 입력해 주세요');
+  if(BASE_TYPES[n] || D.types.some(function(t){return t.name===n;})) return toast('이미 있는 유형입니다');
+  D.types.push({id:uid(), name:n, lectureOnly:$('#ty-only').value==='1', mt:now()});
+  $('#ty-name').value='';
+  save(); drawTypeAdmin(); drawTypes(); toast('추가되었습니다');
+};
+
+/* ================= D-day ================= */
+function drawDday(){
+  var t=today();
+  var live=D.ddays.filter(function(x){ return dayDiff(t,x.date)>=0; })
+                  .sort(function(a,b){ return a.date.localeCompare(b.date); });
+  $('#dday').innerHTML = live.map(function(x){
+    var n=dayDiff(t,x.date);
+    return '<span>'+esc(x.name)+' <b>'+(n===0?'D-DAY':'D-'+n)+'</b></span>';
+  }).join('');
+  var el=$('#dd-list');
+  if(el) el.innerHTML = D.ddays.length
+    ? D.ddays.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(x){
+        var n=dayDiff(t,x.date), past=n<0;
+        return '<span class="pill"'+(past?' style="opacity:.45"':'')+'>'+esc(x.name)
+          +' <span style="color:var(--sub);font-size:12px">'+x.date+(past?' (지남)':' · D-'+n)+'</span>'
+          +'<button onclick="__ddel(\''+x.id+'\')">×</button></span>';
+      }).join('')
+    : '<div class="hint" style="margin:0">등록된 D-day가 없습니다.</div>';
+}
+window.__ddel = function(id){ kill('dd:'+id);
+  D.ddays=D.ddays.filter(function(x){return x.id!==id;}); save(); drawDday(); };
+$('#dd-add').onclick = function(){
+  var n=$('#dd-name').value.trim(), d=$('#dd-date').value;
+  if(!n) return toast('이름을 입력해 주세요');
+  if(!d) return toast('날짜를 선택해 주세요');
+  D.ddays.push({id:uid(), name:n, date:d, mt:now()});
+  $('#dd-name').value=''; $('#dd-date').value='';
+  save(); drawDday(); toast('추가되었습니다');
+};
+
+/* ================= 탭 ================= */
+$$('nav button').forEach(function(b){ b.onclick=function(){
+  $$('nav button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on');
+  $$('main > section').forEach(function(s){s.classList.add('hide');});
+  $('#tab-'+b.dataset.t).classList.remove('hide');
+  if(b.dataset.t==='cal')  drawCal();
+  if(b.dataset.t==='dash') drawDash();
+  if(b.dataset.t==='list') drawList();
+  if(b.dataset.t==='mat')  drawMat();
+  if(b.dataset.t==='set')  { drawTypeAdmin(); drawDday(); drawData(); $('#g-hour').value=(D.settings.goalMin/60); }
+};});
+
+/* ================= 계획 ================= */
+function plansOf(d){ return D.plans[d] || []; }
+function planStat(d){
+  var p=plansOf(d), done=p.filter(function(x){return x.done;}).length;
+  return {n:p.length, done:done, ratio:p.length? done/p.length : 0};
+}
+function drawPlan(){
+  var d=$('#f-date').value || today();
+  $('#p-date').textContent = d===today()? '' : '('+d+')';
+  var p=plansOf(d);
+  $('#p-list').innerHTML = p.length ? p.map(function(x){
+    return '<div class="plan'+(x.done?' done':'')+'">'
+      + '<input type="checkbox"'+(x.done?' checked':'')+' onchange="__ptoggle(\''+x.id+'\')">'
+      + '<span class="tx">'+esc(x.text)+'</span>'
+      + '<button class="x" onclick="__pdel(\''+x.id+'\')">×</button></div>';
+  }).join('') : '<div class="hint" style="margin:0;padding:6px 0">오늘 할 일을 적어두면 달력에 달성 여부가 표시됩니다.</div>';
+  var st=planStat(d);
+  $('#p-bar').style.width = (st.ratio*100)+'%';
+  $('#p-msg').textContent = st.n ? st.done+' / '+st.n+' 완료'+(st.done===st.n?' — 오늘 계획 다 했습니다.':'') : '';
+}
+$('#p-add').onclick = function(){
+  var d=$('#f-date').value||today(), t=$('#p-new').value.trim();
+  if(!t) return;
+  D.plans[d]=D.plans[d]||[]; D.plans[d].push({id:uid(), text:t, done:false, mt:now()});
+  $('#p-new').value=''; save(); drawPlan();
+};
+$('#p-new').onkeydown = function(e){ if(e.key==='Enter') $('#p-add').click(); };
+window.__ptoggle = function(id){
+  var d=$('#f-date').value||today();
+  (D.plans[d]||[]).forEach(function(x){ if(x.id===id){ x.done=!x.done; x.mt=now(); } });
+  save(); drawPlan();
+};
+window.__pdel = function(id){
+  var d=$('#f-date').value||today();
+  kill('plan:'+d+':'+id);
+  D.plans[d]=(D.plans[d]||[]).filter(function(x){return x.id!==id;});
+  if(!D.plans[d].length) delete D.plans[d];
+  save(); drawPlan();
+};
+$('#p-copy').onclick = function(){
+  var d=$('#f-date').value||today();
+  var keys=Object.keys(D.plans).filter(function(k){return k<d && D.plans[k].length;}).sort();
+  if(!keys.length) return toast('불러올 지난 계획이 없습니다');
+  var src=keys[keys.length-1];
+  if(!confirm(src+' 의 계획 '+D.plans[src].length+'개를 복사할까요?')) return;
+  D.plans[d]=(D.plans[d]||[]).concat(D.plans[src].map(function(x){ return {id:uid(), text:x.text, done:false, mt:now()}; }));
+  save(); drawPlan(); toast('불러왔습니다');
+};
+
+/* ================= 기록 폼 ================= */
+var cur = { type:'선택형', group:'', subs:[], mode:'자습' };
+var editId = null;
+
+$('#f-date').value = today();
+$('#f-date').onchange = drawPlan;
+
+function drawTypes(){
+  var list=typeList(cur.mode);
+  if(list.indexOf(cur.type)===-1) { cur.type=list[0]; cur.group=''; cur.subs=[]; }
+  $('#f-type').innerHTML = list.map(function(t){
+    return '<div class="chip'+(t===cur.type?' on':'')+'" data-v="'+esc(t)+'">'+esc(t)+'</div>'; }).join('');
+  $('#f-type-hint').textContent = cur.mode==='인강'
+    ? '— 인강 전용 유형은 설정에서 추가할 수 있습니다' : '';
+  drawGroups();
+}
+$('#f-type').onclick = function(e){
+  var c=e.target.closest('.chip'); if(!c) return;
+  cur.type=c.dataset.v;
+  $$('#f-type .chip').forEach(function(x){ x.classList.toggle('on',x.dataset.v===cur.type); });
+  var sp=typeSpec(cur.type);
+  if(sp.groups.indexOf(cur.group)===-1){ cur.group=''; cur.subs=[]; }
+  if(!sp.sub) cur.subs=[];
+  drawGroups();
+};
+
+function drawGroups(){
+  var sp=typeSpec(cur.type);
+  $('#f-group').innerHTML = sp.groups.map(function(g){
+    var on=g===cur.group;
+    return '<div class="chip'+(on?' on':'')+'" data-v="'+g+'"'
+      + (on?' style="background:'+gColor(g)+';border-color:'+gColor(g)+'"':'')+'>'+g+'</div>';
+  }).join('');
+  drawSubs();
+}
+$('#f-group').onclick = function(e){
+  var c=e.target.closest('.chip'); if(!c) return;
+  if(cur.group!==c.dataset.v) cur.subs=[];
+  cur.group=c.dataset.v;
+  drawGroups(); drawMaterials();
+};
+
+function drawSubs(){
+  var sp=typeSpec(cur.type);
+  var subs = (sp.sub && cur.group) ? GROUPS[cur.group] : [];
+  if(!subs || !subs.length){ $('#f-sub-wrap').classList.add('hide'); $('#f-sub').innerHTML=''; return; }
+  $('#f-sub-wrap').classList.remove('hide');
+  $('#f-sub').innerHTML = subs.map(function(s){
+    var on=cur.subs.indexOf(s)!==-1;
+    return '<div class="chip sub'+(on?' on':'')+'" data-v="'+s+'"'
+      + (on?' style="background:'+gColor(cur.group)+';border-color:'+gColor(cur.group)+'"':'')+'>'+s+'</div>';
+  }).join('');
+}
+$('#f-sub').onclick = function(e){
+  var c=e.target.closest('.chip'); if(!c) return;
+  var v=c.dataset.v, i=cur.subs.indexOf(v);
+  if(i===-1) cur.subs.push(v); else cur.subs.splice(i,1);
+  drawSubs();
+};
+
+$('#f-mode').onclick = function(e){
+  var c=e.target.closest('.chip'); if(!c) return;
+  cur.mode=c.dataset.v;
+  $$('#f-mode .chip').forEach(function(x){ x.classList.toggle('on',x.dataset.v===cur.mode); });
+  $('#f-mat-label').textContent = cur.mode==='인강' ? '수강한 인강' : '교재';
+  drawTypes(); drawMaterials();
+};
+
+function bank(){ return cur.mode==='인강' ? 'lectures' : 'books'; }
+function items(g, kind){ return (D[kind] && D[kind][g]) || []; }
+function findItem(g, kind, name){
+  var l=items(g,kind); for(var i=0;i<l.length;i++) if(l[i].name===name) return l[i]; return null;
+}
+function drawMaterials(){
+  var sel=$('#f-material');
+  if(!cur.group){ sel.innerHTML='<option value="">— 과목을 먼저 선택하세요 —</option>'; drawLec(); return; }
+  var list=items(cur.group, bank());
+  sel.innerHTML = '<option value="">— 선택 —</option>'
+    + list.map(function(b){
+        var t=(bank()==='lectures'&&b.total>0)? ' (총 '+b.total+'강)' : '';
+        return '<option value="'+esc(b.name)+'">'+esc(b.name)+t+'</option>'; }).join('')
+    + '<option value="__new__">+ 새로 추가…</option>';
+  drawLec();
+}
+$('#f-material').onchange = function(){
+  if(this.value!=='__new__'){ drawLec(true); return; }
+  var isLec = cur.mode==='인강';
+  var name=(prompt((isLec?'인강':'교재')+' 이름을 입력하세요\n(상위분류: '+cur.group+')')||'').trim();
+  if(!name){ this.value=''; drawLec(); return; }
+  var total=0;
+  if(isLec){
+    var t=prompt('총 몇 강인가요?\n(모르면 비워두세요. 나중에 [교재 · 인강] 탭에서 넣을 수 있습니다)','');
+    total = Math.max(0, parseInt(t,10)||0);
+  }
+  var k=bank(); D[k][cur.group]=D[k][cur.group]||[];
+  if(!findItem(cur.group,k,name)) D[k][cur.group].push({name:name, total:total});
+  save(); drawMaterials(); this.value=name; drawLec(true); toast('추가되었습니다');
+};
+
+/* ---- 인강 진도 ---- */
+function lecStat(g, name){
+  var set={}, last=0;
+  D.logs.forEach(function(r){
+    if(r.mode!=='인강' || r.group!==g || r.material!==name) return;
+    var a=parseInt(r.lecFrom,10), b=parseInt(r.lecTo,10);
+    if(!(a>0)) return;
+    if(!(b>0)||b<a) b=a;
+    if(b-a>500) b=a+500;
+    for(var i=a;i<=b;i++){ set[i]=1; if(i>last) last=i; }
+  });
+  return { watched:Object.keys(set).length, last:last };
+}
+function curLecItem(){
+  if(cur.mode!=='인강' || !cur.group) return null;
+  var nm=$('#f-material').value;
+  if(!nm || nm==='__new__') return null;
+  return findItem(cur.group,'lectures',nm);
+}
+function drawLec(autofill){
+  var it=curLecItem();
+  var wrap=$('#f-lec-wrap');
+  if(!it){ wrap.classList.add('hide'); return; }
+  wrap.classList.remove('hide');
+  var st=lecStat(cur.group, it.name);
+  if(autofill && !editId){
+    $('#f-lec-from').value = st.last+1;
+    $('#f-lec-to').value   = st.last+1;
+  }
+  if(it.total>0){
+    var pct=Math.min(100, Math.round(st.watched/it.total*1000)/10);
+    $('#f-lec-prog').innerHTML =
+      '<div class="bar" style="margin:0"><div class="lb"><span>'+esc(it.name)+'</span>'
+      + '<i>'+st.watched+' / '+it.total+'강 · '+pct+'%</i></div>'
+      + '<div class="tr"><div class="fl" style="width:'+pct+'%"></div></div></div>'
+      + '<div class="hint" style="margin-top:6px">마지막으로 들은 강: '+(st.last||'-')+'강 · 남은 강: '
+      + Math.max(0,it.total-st.watched)+'강</div>';
+    $('#f-lec-hint').textContent = '';
+  } else {
+    $('#f-lec-prog').innerHTML = '<div class="hint" style="margin:0">총 강수가 등록되지 않았습니다.</div>';
+    $('#f-lec-hint').innerHTML = '<b>교재 · 인강</b> 탭에서 총 강수를 넣으면 진도율이 계산됩니다. (지금까지 '+st.watched+'강 수강)';
+  }
+}
+
+function calcAcc(){
+  var t=+$('#f-qt').value, c=+$('#f-qc').value;
+  $('#f-acc').value = (t>0 && $('#f-qc').value!=='') ? Math.round(c/t*1000)/10+'%' : '';
+}
+$('#f-qt').oninput = calcAcc; $('#f-qc').oninput = calcAcc;
+$$('[data-add]').forEach(function(c){ c.onclick=function(){
+  $('#f-min').value = (+$('#f-min').value||0) + (+c.dataset.add); }; });
+
+/* 스톱워치 */
+var tRun=false, tSec=0, tId=null;
+function tShow(){
+  var h=String(Math.floor(tSec/3600)); while(h.length<2) h='0'+h;
+  var m=String(Math.floor(tSec%3600/60)); while(m.length<2) m='0'+m;
+  var s=String(tSec%60); while(s.length<2) s='0'+s;
+  $('#t-disp').textContent = h+':'+m+':'+s;
+}
+$('#t-start').onclick = function(){
+  if(tRun){ clearInterval(tId); tRun=false; $('#t-start').textContent='계속';
+    var mins=Math.max(1,Math.round(tSec/60)); $('#f-min').value=mins; toast(hm(mins)+' 기록됨'); }
+  else { tRun=true; $('#t-start').textContent='정지'; tId=setInterval(function(){tSec++;tShow();},1000); }
+};
+$('#t-reset').onclick = function(){ clearInterval(tId); tRun=false; tSec=0; $('#t-start').textContent='시작'; tShow(); };
+
+/* 저장 */
+$('#f-save').onclick = function(){
+  if(!cur.group) return toast('과목(상위분류)을 선택해 주세요');
+  var min = +$('#f-min').value;
+  if(!min || min<=0) return toast('공부 시간을 입력해 주세요');
+  var qt = $('#f-qt').value===''?null:+$('#f-qt').value;
+  var qc = $('#f-qc').value===''?null:+$('#f-qc').value;
+  if(qt!==null && qc!==null && qc>qt) return toast('맞은 개수가 푼 문항 수보다 많습니다');
+  var mv=$('#f-material').value;
+  var lf=null, lt=null;
+  if(cur.mode==='인강' && !$('#f-lec-wrap').classList.contains('hide')){
+    lf = $('#f-lec-from').value===''? null : parseInt($('#f-lec-from').value,10);
+    lt = $('#f-lec-to').value===''? null : parseInt($('#f-lec-to').value,10);
+    if(lf!==null && !(lf>0)) lf=null;
+    if(lt!==null && !(lt>0)) lt=null;
+    if(lf===null && lt!==null){ lf=lt; }
+    if(lf!==null && lt===null) lt=lf;
+    if(lf!==null && lt<lf) return toast('끝 강수가 시작보다 작습니다');
+    var itc = curLecItem();
+    if(itc && itc.total>0 && lt>itc.total)
+      return toast('총 '+itc.total+'강인데 '+lt+'강으로 입력되었습니다');
+  }
+  var rec = {
+    id: editId || uid(),
+    date: $('#f-date').value || today(),
+    type: cur.type, group: cur.group, subs: cur.subs.slice(), mode: cur.mode,
+    material: mv==='__new__'?'':mv,
+    range: $('#f-range').value.trim(),
+    lecFrom: lf, lecTo: lt,
+    minutes: min, qTotal: qt, qCorrect: qc,
+    memo: $('#f-memo').value.trim(), mt: now()
+  };
+  if(editId){
+    var i=D.logs.findIndex(function(x){return x.id===editId;});
+    D.logs[i]=rec; editId=null;
+    $('#f-save').textContent='기록 저장'; $('#f-cancel').classList.add('hide'); toast('수정되었습니다');
+  } else { D.logs.push(rec); toast('저장되었습니다 · '+subjLabel(rec)+' '+hm(min)); }
+  save(); resetForm(false); drawToday();
+};
+$('#f-cancel').onclick = function(){ editId=null; $('#f-save').textContent='기록 저장';
+  $('#f-cancel').classList.add('hide'); resetForm(true); };
+function resetForm(all){
+  $('#f-min').value=''; $('#f-range').value=''; $('#f-qt').value=''; $('#f-qc').value='';
+  $('#f-acc').value=''; $('#f-memo').value='';
+  $('#f-lec-from').value=''; $('#f-lec-to').value='';
+  clearInterval(tId); tRun=false; tSec=0; $('#t-start').textContent='시작'; tShow();
+  drawLec(true);
+  if(all){ $('#f-date').value=today(); drawPlan(); }
+}
+function edit(id){
+  var r=null; for(var i=0;i<D.logs.length;i++) if(D.logs[i].id===id) r=D.logs[i];
+  if(!r) return;
+  editId=id;
+  $('#f-date').value=r.date;
+  cur.mode=r.mode||'자습'; cur.type=r.type; cur.group=r.group; cur.subs=(r.subs||[]).slice();
+  $$('#f-mode .chip').forEach(function(x){ x.classList.toggle('on',x.dataset.v===cur.mode); });
+  $('#f-mat-label').textContent = cur.mode==='인강'?'수강한 인강':'교재';
+  drawTypes();
+  $('#f-material').value=r.material||'';
+  $('#f-lec-from').value=(r.lecFrom==null?'':r.lecFrom);
+  $('#f-lec-to').value=(r.lecTo==null?'':r.lecTo);
+  drawLec(false);
+  $('#f-range').value=r.range||''; $('#f-min').value=r.minutes;
+  $('#f-qt').value=(r.qTotal==null?'':r.qTotal); $('#f-qc').value=(r.qCorrect==null?'':r.qCorrect); calcAcc();
+  $('#f-memo').value=r.memo||'';
+  $('#f-save').textContent='수정 저장'; $('#f-cancel').classList.remove('hide');
+  $$('nav button')[0].click(); drawPlan(); window.scrollTo({top:0,behavior:'smooth'});
+}
+function del(id){
+  if(!confirm('이 기록을 삭제할까요?')) return;
+  kill('log:'+id);
+  D.logs=D.logs.filter(function(x){return x.id!==id;});
+  save(); drawToday(); drawList(); drawCal(); toast('삭제되었습니다');
+}
+window.__edit=edit; window.__del=del;
+
+function subjLabel(r){ return (r.subs&&r.subs.length)? r.subs.join(' · ') : r.group; }
+
+function drawToday(){
+  var t=today();
+  var rows=D.logs.filter(function(r){return r.date===t;}).sort(function(a,b){return b.id.localeCompare(a.id);});
+  var tot=rows.reduce(function(s,r){return s+r.minutes;},0);
+  $('#today-sum').textContent = rows.length? '총 '+hm(tot)+' · '+rows.length+'건' : '';
+  $('#today-list').innerHTML = rows.length? table(rows,true) : '<div class="empty">아직 오늘 기록이 없습니다.</div>';
+}
+function table(rows, compact){
+  var head = '<div style="overflow-x:auto"><table><thead><tr>'
+    + (compact?'':'<th>날짜</th>')
+    + '<th>과목</th><th>유형</th><th>형태</th><th>교재 / 인강</th><th>진도</th><th>시간</th><th>정답률</th><th>메모</th><th></th></tr></thead><tbody>';
+  var body = rows.map(function(r){
+    var acc = (r.qTotal>0 && r.qCorrect!=null) ? Math.round(r.qCorrect/r.qTotal*1000)/10+'%' : '';
+    var q   = r.qTotal ? '<span style="color:var(--sub);font-size:11.5px"> ('+(r.qCorrect==null?'-':r.qCorrect)+'/'+r.qTotal+')</span>' : '';
+    var subTxt = (r.subs&&r.subs.length)? '<span class="sub-t">'+esc(r.subs.join(' · '))+'</span>' : '';
+    return '<tr>'
+      + (compact?'':'<td style="white-space:nowrap;color:var(--sub)">'+r.date.slice(5)+'</td>')
+      + '<td><span class="tag" style="background:'+gColor(r.group)+'">'+esc(r.group)+'</span>'+subTxt+'</td>'
+      + '<td>'+esc(r.type)+'</td>'
+      + '<td style="color:var(--sub)">'+esc(r.mode||'자습')+'</td>'
+      + '<td>'+(r.material?esc(r.material):'<span style="color:#c5c1b8">—</span>')+'</td>'
+      + '<td style="color:var(--sub);font-size:12.5px">'
+        + (r.lecFrom? '<b style="color:var(--ink)">'+r.lecFrom+(r.lecTo&&r.lecTo!==r.lecFrom?'~'+r.lecTo:'')+'강</b>'+(r.range?'<br>':'') : '')
+        + esc(r.range)+'</td>'
+      + '<td style="white-space:nowrap;font-weight:600">'+hm(r.minutes)+'</td>'
+      + '<td style="white-space:nowrap">'+acc+q+'</td>'
+      + '<td style="color:var(--sub);font-size:12.5px;max-width:220px">'+esc(r.memo)+'</td>'
+      + '<td style="white-space:nowrap"><button class="btn sm ghost" onclick="__edit(\''+r.id+'\')">수정</button> '
+      + '<button class="btn sm danger" onclick="__del(\''+r.id+'\')">삭제</button></td></tr>';
+  }).join('');
+  return head + body + '</tbody></table></div>';
+}
+
+/* ================= 달력 ================= */
+var calY, calM, calSel=null;
+(function(){ var n=new Date(); calY=n.getFullYear(); calM=n.getMonth(); })();
+$('#c-prev').onclick = function(){ calM--; if(calM<0){calM=11;calY--;} drawCal(); };
+$('#c-next').onclick = function(){ calM++; if(calM>11){calM=0;calY++;} drawCal(); };
+$('#c-now').onclick  = function(){ var n=new Date(); calY=n.getFullYear(); calM=n.getMonth(); drawCal(); };
+function minutesOf(d){ return D.logs.filter(function(r){return r.date===d;}).reduce(function(s,r){return s+r.minutes;},0); }
+function levelOf(d){
+  var st=planStat(d), min=minutesOf(d);
+  if(st.n>0){
+    if(st.done===st.n) return 3;
+    if(st.ratio>=0.5)  return 2;
+    if(st.done>0||min>0) return 1;
+    return 0;
+  }
+  return min>0 ? 1 : 0;
+}
+function drawCal(){
+  var t=today();
+  $('#c-title').textContent = calY+'년 '+(calM+1)+'월';
+  var last=new Date(calY,calM+1,0);
+  var lead=(new Date(calY,calM,1).getDay()+6)%7;
+  var html='';
+  ['월','화','수','목','금','토','일'].forEach(function(w){ html+='<div class="wd">'+w+'</div>'; });
+  for(var i=0;i<lead;i++) html+='<div class="cell blank"></div>';
+  var doneDays=0, studyDays=0, totMin=0;
+  for(var d=1;d<=last.getDate();d++){
+    var ds=ymd(new Date(calY,calM,d));
+    var lv=levelOf(ds), min=minutesOf(ds), st=planStat(ds);
+    if(lv===3) doneDays++;
+    if(min>0) studyDays++;
+    totMin+=min;
+    var cls='cell l'+lv;
+    if(ds===t) cls+=' today';
+    if(ds===calSel) cls+=' sel';
+    if(ds>t) cls+=' fut';
+    html+='<div class="'+cls+'" onclick="__pick(\''+ds+'\')">'
+      + (lv===3?'<div class="ck">✓</div>':'')
+      + '<div class="n">'+d+'</div>'
+      + '<div class="v">'+(min?hshort(min):'')+(st.n?'<br>'+st.done+'/'+st.n:'')+'</div></div>';
+  }
+  $('#c-grid').innerHTML = html;
+  $('#c-sum').textContent = '계획 완료 '+doneDays+'일 · 공부한 날 '+studyDays+'일 · 총 '+hm(totMin);
+  drawCalDetail();
+}
+window.__pick = function(d){ calSel=d; drawCal(); };
+function drawCalDetail(){
+  if(!calSel){ $('#c-dtitle').textContent='날짜를 선택하세요';
+    $('#c-dsum').textContent=''; $('#c-detail').innerHTML='<div class="empty">달력에서 날짜를 눌러보세요.</div>'; return; }
+  var d=calSel, p=plansOf(d), rows=D.logs.filter(function(r){return r.date===d;}), min=minutesOf(d);
+  $('#c-dtitle').textContent = d.replace(/-/g,'. ')+'.';
+  $('#c-dsum').textContent = min? '총 '+hm(min) : '기록 없음';
+  var h='<div style="font-size:12.5px;color:var(--sub);font-weight:600;margin-bottom:6px">계획</div>';
+  h += p.length ? p.map(function(x){
+      return '<div class="plan'+(x.done?' done':'')+'"><input type="checkbox" '+(x.done?'checked':'')
+        +' onchange="__ctoggle(\''+d+'\',\''+x.id+'\')"><span class="tx">'+esc(x.text)+'</span></div>';
+    }).join('') : '<div class="hint" style="margin:0 0 6px">계획이 없습니다.</div>';
+  h += '<div style="font-size:12.5px;color:var(--sub);font-weight:600;margin:16px 0 6px">기록</div>';
+  h += rows.length ? table(rows,true) : '<div class="hint" style="margin:0">기록이 없습니다.</div>';
+  $('#c-detail').innerHTML = h;
+}
+window.__ctoggle = function(d,id){
+  (D.plans[d]||[]).forEach(function(x){ if(x.id===id){ x.done=!x.done; x.mt=now(); } });
+  save(); drawCal(); drawPlan();
+};
+
+/* ================= 통계 ================= */
+var period = 30;
+$('#d-period').onclick = function(e){
+  var c=e.target.closest('.chip'); if(!c) return;
+  period=+c.dataset.v;
+  $$('#d-period .chip').forEach(function(x){ x.classList.toggle('on',+x.dataset.v===period); });
+  drawDash();
+};
+function inPeriod(){
+  if(!period) return D.logs.slice();
+  var from=daysAgo(period-1);
+  return D.logs.filter(function(r){return r.date>=from;});
+}
+function bars(map, colorFn){
+  var ent=Object.keys(map).map(function(k){return [k,map[k]];})
+    .filter(function(e){return e[1]>0;}).sort(function(a,b){return b[1]-a[1];});
+  if(!ent.length) return '<div class="empty">기록이 없습니다.</div>';
+  var max=ent[0][1];
+  return ent.map(function(e){
+    return '<div class="bar"><div class="lb"><span>'+esc(e[0])+'</span><i>'+hm(e[1])+'</i></div>'
+      + '<div class="tr"><div class="fl" style="width:'+(e[1]/max*100)+'%;background:'
+      + (colorFn?colorFn(e[0]):'var(--accent)')+'"></div></div></div>';
+  }).join('');
+}
+function drawDash(){
+  var t=today(), ws=weekStart(), ms=monthStart();
+  function sum(f){ return D.logs.filter(f).reduce(function(s,r){return s+r.minutes;},0); }
+  $('#s-today').textContent = hshort(sum(function(r){return r.date===t;}));
+  $('#s-week').textContent  = hshort(sum(function(r){return r.date>=ws;}));
+  $('#s-month').textContent = hshort(sum(function(r){return r.date>=ms;}));
+
+  var dates={}; D.logs.forEach(function(r){ dates[r.date]=1; });
+  var st=0, start=dates[t]?0:1;
+  for(var i=start;i<400;i++){ if(dates[daysAgo(i)]) st++; else break; }
+  $('#s-streak').textContent = st+'일';
+
+  var arr=[]; for(var j=13;j>=0;j--){ var d=daysAgo(j); arr.push([d, minutesOf(d)]); }
+  var mx=Math.max.apply(null,[60].concat(arr.map(function(a){return a[1];})));
+  $('#d-days').innerHTML = arr.map(function(a){
+    return '<div class="d"><div class="dv">'+(a[1]?hshort(a[1]):'')+'</div>'
+      + '<div class="col" style="height:'+(a[1]/mx*88)+'%;background:'+(a[1]?'var(--accent)':'#e8e5df')+'"></div>'
+      + '<div class="dl">'+a[0].slice(5).replace('-','/')+'</div></div>';
+  }).join('');
+
+  var rows=inPeriod();
+
+  var gm={}; rows.forEach(function(r){ gm[r.group]=(gm[r.group]||0)+r.minutes; });
+  $('#d-group').innerHTML = bars(gm, gColor);
+
+  /* 세부 과목: 복수 선택 시 시간을 균등 분배 → 합계 보존 */
+  var sm={};
+  rows.forEach(function(r){
+    var ls=(r.subs&&r.subs.length)? r.subs : [r.group];
+    var per=r.minutes/ls.length;
+    ls.forEach(function(s){ sm[s]=(sm[s]||0)+per; });
+  });
+  $('#d-subject').innerHTML = bars(sm, function(s){ return gColor(groupOfSub(s)||s); });
+
+  function agg(key){ var m={}; rows.forEach(function(r){ var k=r[key]||'미기재'; m[k]=(m[k]||0)+r.minutes; }); return m; }
+  $('#d-type').innerHTML = bars(agg('type'));
+  $('#d-mode').innerHTML = bars(agg('mode'));
+
+  var mm={}; rows.forEach(function(r){ if(!r.material) return;
+    var k=r.group+' · '+r.material; mm[k]=(mm[k]||0)+r.minutes; });
+  $('#d-mat').innerHTML = bars(mm);
+
+  /* 인강 진도율 */
+  var lecHtml='';
+  GROUP_ORDER.forEach(function(g){
+    items(g,'lectures').forEach(function(b){
+      var st=lecStat(g,b.name);
+      if(!st.watched && !(b.total>0)) return;
+      var pct = b.total>0 ? Math.min(100, Math.round(st.watched/b.total*1000)/10) : 0;
+      lecHtml += '<div class="bar"><div class="lb">'
+        + '<span><span class="tag" style="background:'+gColor(g)+';margin-right:6px">'+g+'</span>'+esc(b.name)+'</span>'
+        + '<i>'+(b.total>0 ? st.watched+' / '+b.total+'강 · '+pct+'%' : st.watched+'강 (총 강수 미등록)')+'</i></div>'
+        + '<div class="tr"><div class="fl" style="width:'+pct+'%;background:'+gColor(g)+'"></div></div></div>';
+    });
+  });
+  $('#d-lec').innerHTML = lecHtml || '<div class="empty">인강을 등록하고 들은 강을 기록하면 진도율이 표시됩니다.</div>';
+
+  var ac={};
+  rows.forEach(function(r){ if(!(r.qTotal>0)||r.qCorrect==null) return;
+    if(!ac[r.group]) ac[r.group]={t:0,c:0};
+    ac[r.group].t+=r.qTotal; ac[r.group].c+=r.qCorrect; });
+  var ks=Object.keys(ac);
+  $('#d-acc').innerHTML = ks.length? ks.map(function(k){
+    var v=ac[k], p=Math.round(v.c/v.t*1000)/10;
+    return '<div class="bar"><div class="lb"><span>'+esc(k)+'</span><i>'+p+'% · '+v.c+'/'+v.t+'문항</i></div>'
+      + '<div class="tr"><div class="fl" style="width:'+p+'%;background:'+gColor(k)+'"></div></div></div>';
+  }).join('') : '<div class="empty">문항 수를 기록하면 정답률이 표시됩니다.</div>';
+}
+
+/* ================= 기록 목록 ================= */
+function allSubjectOptions(){
+  var out=[];
+  GROUP_ORDER.forEach(function(g){
+    out.push(g);
+    GROUPS[g].forEach(function(s){ out.push('　└ '+s); });
+  });
+  return out;
+}
+function optValue(v){ return v.replace('　└ ',''); }
+function fillSelect(el, list, allLabel){
+  el.innerHTML = '<option value="">'+allLabel+'</option>'
+    + list.map(function(v){ return '<option value="'+esc(optValue(v))+'">'+esc(v)+'</option>'; }).join('');
+}
+function refreshFilters(){
+  var keep=$('#l-type').value;
+  fillSelect($('#l-subject'), allSubjectOptions(), '전체 과목');
+  var tl=Object.keys(BASE_TYPES).concat(D.types.map(function(t){return t.name;}));
+  fillSelect($('#l-type'), tl, '전체 유형');
+  if(tl.indexOf(keep)!==-1) $('#l-type').value=keep;
+  fillSelect($('#l-mode'), ['자습','인강'], '전체');
+}
+['#l-subject','#l-type','#l-mode'].forEach(function(s){ $(s).onchange=drawList; });
+$('#l-q').oninput = drawList;
+function drawList(){
+  var s=$('#l-subject').value, t=$('#l-type').value, m=$('#l-mode').value;
+  var q=$('#l-q').value.trim().toLowerCase();
+  var rows=D.logs.filter(function(r){
+    var subjOk = !s || r.group===s || (r.subs||[]).indexOf(s)!==-1;
+    return subjOk && (!t||r.type===t) && (!m||(r.mode||'자습')===m)
+      && (!q || ((r.material||'')+(r.range||'')+(r.memo||'')).toLowerCase().indexOf(q)!==-1);
+  });
+  rows.sort(function(a,b){ return b.date.localeCompare(a.date) || b.id.localeCompare(a.id); });
+  var tot=rows.reduce(function(x,r){return x+r.minutes;},0);
+  $('#l-count').textContent = rows.length? rows.length+'건 · 총 '+hm(tot) : '';
+  $('#l-table').innerHTML = rows.length? table(rows,false) : '<div class="empty">조건에 맞는 기록이 없습니다.</div>';
+}
+
+/* ================= 교재·인강 ================= */
+var mKind='books';
+$('#m-subject').onchange = drawMat;
+$('#m-kind').onclick = function(e){ var c=e.target.closest('.chip'); if(!c) return;
+  mKind=c.dataset.v; $$('#m-kind .chip').forEach(function(x){ x.classList.toggle('on',x.dataset.v===mKind); }); drawMat(); };
+$('#m-add').onclick = function(){
+  var g=$('#m-subject').value, n=$('#m-new').value.trim();
+  if(!g) return toast('상위분류를 선택해 주세요');
+  if(!n) return toast('이름을 입력해 주세요');
+  D[mKind][g]=D[mKind][g]||[];
+  if(findItem(g,mKind,n)) return toast('이미 등록되어 있습니다');
+  var tot = (mKind==='lectures') ? Math.max(0, parseInt($('#m-total').value,10)||0) : 0;
+  D[mKind][g].push({name:n, total:tot});
+  save(); $('#m-new').value=''; $('#m-total').value='';
+  drawMat(); drawMaterials(); toast('추가되었습니다');
+};
+$('#m-new').onkeydown = function(e){ if(e.key==='Enter') $('#m-add').click(); };
+$('#m-total').onkeydown = function(e){ if(e.key==='Enter') $('#m-add').click(); };
+function drawMat(){
+  var isLec = mKind==='lectures';
+  $('#m-total').classList.toggle('hide', !isLec);
+  $('#m-total-hint').classList.toggle('hide', !isLec);
+  var g=$('#m-subject').value;
+  if(!g){ $('#m-list').innerHTML='<div class="empty">상위분류를 선택하면 등록된 목록이 표시됩니다.</div>'; return; }
+  var list=items(g,mKind);
+  if(!list.length){ $('#m-list').innerHTML='<div class="empty">등록된 항목이 없습니다.</div>'; return; }
+
+  if(!isLec){
+    $('#m-list').innerHTML = list.map(function(b,idx){
+      var used = D.logs.some(function(r){ return r.group===g && r.material===b.name; });
+      return '<span class="pill">'+esc(b.name)+(used?'':'<button title="삭제" onclick="__rm('+idx+')">×</button>')+'</span>';
+    }).join('') + '<div class="hint" style="margin-top:10px">이미 기록에 사용된 항목은 삭제할 수 없습니다.</div>';
+    return;
+  }
+  /* 인강: 진도율 카드 */
+  $('#m-list').innerHTML = list.map(function(b,idx){
+    var st=lecStat(g,b.name);
+    var used=D.logs.some(function(r){ return r.group===g && r.material===b.name; });
+    var pct = b.total>0 ? Math.min(100, Math.round(st.watched/b.total*1000)/10) : 0;
+    var right = b.total>0
+      ? st.watched+' / '+b.total+'강 · '+pct+'%'
+      : st.watched+'강 수강 · 총 강수 미등록';
+    return '<div style="border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px">'
+      + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">'
+      +   '<b style="font-size:14px">'+esc(b.name)+'</b>'
+      +   '<span style="font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums">'+right+'</span>'
+      + '</div>'
+      + (b.total>0
+          ? '<div class="tr" style="height:9px;background:#eeece7;border-radius:5px;overflow:hidden;margin-top:8px">'
+            + '<div style="height:100%;border-radius:5px;background:var(--accent);width:'+pct+'%"></div></div>'
+          : '')
+      + '<div class="hint" style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+      +   '<span>마지막 수강: '+(st.last||'-')+'강'+(b.total>0?' · 남은 '+Math.max(0,b.total-st.watched)+'강':'')+'</span>'
+      +   '<button class="btn sm ghost" onclick="__setTotal('+idx+')">총 강수 '+(b.total>0?'수정':'입력')+'</button>'
+      +   (used?'':'<button class="btn sm danger" onclick="__rm('+idx+')">삭제</button>')
+      + '</div></div>';
+  }).join('');
+}
+window.__setTotal = function(idx){
+  var g=$('#m-subject').value, b=items(g,mKind)[idx];
+  var t=prompt('“'+b.name+'” 의 총 강수를 입력하세요', b.total||'');
+  if(t===null) return;
+  b.total = Math.max(0, parseInt(t,10)||0);
+  save(); drawMat(); drawMaterials(); toast('저장되었습니다');
+};
+window.__rm = function(idx){
+  var g=$('#m-subject').value, it=items(g,mKind)[idx];
+  if(it) kill('mat:'+mKind+':'+g+':'+it.name);
+  D[mKind][g].splice(idx,1); save(); drawMat(); drawMaterials();
+};
+
+/* ================= 목표 시간 ================= */
+$('#g-hour').onchange = function(){
+  var h=parseFloat(this.value);
+  if(!(h>0)){ this.value=D.settings.goalMin/60; return; }
+  D.settings.goalMin=Math.round(h*60); save(); toast('저장되었습니다');
+};
+
+/* ================= OneDrive 자동 저장 ================= */
+var fh=null, fsOk=false, fsTimer=null, fsNote='';
+var isFileUrl = location.protocol==='file:';
+function idbOpen(){ return new Promise(function(res,rej){
+  try{ var q=indexedDB.open('lawstudy',1);
+    q.onupgradeneeded=function(){ q.result.createObjectStore('kv'); };
+    q.onsuccess=function(){ res(q.result); }; q.onerror=function(){ rej(q.error); };
+  }catch(e){ rej(e); } }); }
+function idbGet(k){ return idbOpen().then(function(db){ return new Promise(function(res){
+  var t=db.transaction('kv').objectStore('kv').get(k);
+  t.onsuccess=function(){res(t.result);}; t.onerror=function(){res(null);}; }); }).catch(function(){return null;}); }
+function idbSet(k,v){ return idbOpen().then(function(db){ return new Promise(function(res){
+  var t=db.transaction('kv','readwrite').objectStore('kv').put(v,k);
+  t.onsuccess=function(){res(true);}; t.onerror=function(){res(false);}; }); }).catch(function(){return false;}); }
+function fsQueue(){ if(!fsOk||!fh) return; clearTimeout(fsTimer); fsTimer=setTimeout(fsWrite,700); }
+function fsWrite(){
+  if(!fsOk||!fh) return;
+  fh.createWritable().then(function(w){
+    return w.write(JSON.stringify(D,null,2)).then(function(){ return w.close(); });
+  }).then(function(){ renderFs('저장됨 '+new Date().toLocaleTimeString('ko-KR')); })
+    .catch(function(){ fsOk=false; renderFs('쓰기 권한이 끊겼습니다'); });
+}
+function fsMsg(m){ renderFs(m||''); }
+function renderFs(note){
+  if(note!==undefined) fsNote=note;
+  var bar=$('#fsbar'), info=$('#fs-info');
+  if(!window.showSaveFilePicker){
+    bar.classList.add('hide');
+    info.innerHTML='이 브라우저는 폴더 자동 저장을 지원하지 않습니다. <b>크롬 또는 엣지</b>에서 열어 주세요.';
+    return;
+  }
+  if(fsOk){
+    bar.className='fsbar ok';
+    bar.innerHTML='OneDrive 파일에 자동 저장 중 <b style="margin-left:6px">'+esc(fh?fh.name:'')+'</b>'
+      + (fsNote?'<span style="color:var(--sub);margin-left:8px">'+esc(fsNote)+'</span>':'');
+    info.innerHTML='연결됨: <b>'+esc(fh?fh.name:'')+'</b> — 기록이 바뀔 때마다 자동으로 덮어씁니다.';
+  } else if(fh){
+    bar.className='fsbar';
+    bar.innerHTML='<span>OneDrive 자동 저장이 꺼져 있습니다 <b>('+esc(fh.name)+')</b> — 기록은 안전하게 저장되고 있습니다</span>'
+      + '<button class="btn sm" onclick="__fsRepick()">파일 다시 지정해서 켜기</button>'
+      + '<button class="btn sm ghost" onclick="__fsAllow()">허용만 시도</button>'
+      + (fsNote?'<span style="color:var(--warn);width:100%;font-size:12px">'+esc(fsNote)+'</span>':'');
+    info.innerHTML='<b>파일 다시 지정해서 켜기</b>를 누르면 같은 폴더가 열립니다. 같은 파일을 선택하고 “바꾸기”를 누르면 켜집니다.'
+      + (isFileUrl? '<br><span style="color:var(--warn)">파일을 직접 열어 사용 중이라(file://) 브라우저가 권한을 기억하지 못합니다.</span>':'');
+  } else {
+    bar.classList.add('hide');
+    info.innerHTML='아직 연결되지 않았습니다. 아래 버튼으로 OneDrive 폴더 안에 저장할 파일을 지정하세요.';
+  }
+}
+window.__fsAllow = function(){
+  if(!fh) return toast('연결된 파일이 없습니다');
+  var pr;
+  try{ pr = fh.requestPermission({mode:'readwrite'}); }
+  catch(err){ fsMsg('권한 요청 실패 → [파일 다시 지정해서 켜기]를 눌러 주세요.'); return; }
+  if(!pr || !pr.then){ fsMsg('이 브라우저에서는 권한 재요청이 안 됩니다 → [파일 다시 지정해서 켜기]'); return; }
+  pr.then(function(p){
+    if(p==='granted'){ fsOk=true; fsLoadIfNewer().then(function(){ fsWrite(); renderFs(''); toast('자동 저장이 켜졌습니다'); }); }
+    else fsMsg('브라우저가 권한 창 없이 거부했습니다(상태: '+p+') → [파일 다시 지정해서 켜기]를 눌러 주세요.');
+  }).catch(function(){ fsMsg('권한 요청 중 오류 → [파일 다시 지정해서 켜기]를 눌러 주세요.'); });
+};
+function fsPick(){
+  if(!window.showSaveFilePicker){ alert('크롬 또는 엣지에서 열어 주세요.'); return; }
+  var opt={ suggestedName:(fh&&fh.name)||'공부기록_데이터.json',
+            types:[{description:'공부기록 데이터', accept:{'application/json':['.json']}}] };
+  if(fh) opt.startIn=fh;
+  var p;
+  try{ p=window.showSaveFilePicker(opt); }
+  catch(err){ fsMsg('파일 선택창을 열지 못했습니다'); return; }
+  p.then(function(h){ fh=h; fsOk=true; fsNote=''; return idbSet('file',h); })
+   .then(function(){ return fsLoadIfNewer(); })
+   .then(function(){ fsWrite(); renderFs(''); toast('자동 저장이 켜졌습니다'); })
+   .catch(function(err){ if(err&&err.name==='AbortError') return; fsMsg('연결 실패: '+(err&&err.name||'')); });
+}
+window.__fsRepick = fsPick;
+$('#fs-connect').onclick = fsPick;
+$('#fs-off').onclick = function(){ fh=null; fsOk=false; idbSet('file',null); renderFs(''); toast('연결을 해제했습니다'); };
+$('#fs-load').onclick = function(){
+  if(!fh||!fsOk) return toast('먼저 파일을 지정해 주세요');
+  fh.getFile().then(function(f){ return f.text(); }).then(function(txt){
+    var o=JSON.parse(txt); if(!o.logs) throw new Error('bad');
+    if(!confirm('지정한 파일의 내용으로 현재 데이터를 교체할까요?')) return;
+    adopt(o); toast('불러왔습니다');
+  }).catch(function(){ toast('파일을 읽을 수 없습니다'); });
+};
+function fsLoadIfNewer(){
+  if(!fh||!fsOk) return Promise.resolve();
+  return fh.getFile().then(function(f){ return f.text(); }).then(function(txt){
+    if(!txt) return;
+    var o=JSON.parse(txt); if(!o.logs) return;
+    if((o.updatedAt||0) > (D.updatedAt||0)+1000){
+      if(confirm('OneDrive 파일에 더 최근 기록이 있습니다.\n('+new Date(o.updatedAt).toLocaleString('ko-KR')+')\n불러올까요?')) adopt(o);
+    }
+  }).catch(function(){});
+}
+function adopt(o){
+  o=migrate(o);
+  D.books=o.books||{}; D.lectures=o.lectures||{}; D.logs=o.logs||[];
+  D.plans=o.plans||{}; D.ddays=o.ddays||D.ddays; D.types=o.types||D.types;
+  D.tomb=o.tomb||{};
+  D.settings=Object.assign({goalMin:600},o.settings||{});
+  try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){}
+  redrawAll();
+}
+
+/* ================= 백업 ================= */
+function dl(name, text, mime){
+  var b=new Blob([text],{type:mime}); var u=URL.createObjectURL(b);
+  var a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
+}
+$('#x-json').onclick = function(){ dl('공부기록_백업_'+today()+'.json', JSON.stringify(D,null,2), 'application/json');
+  toast('백업 파일을 내려받았습니다'); };
+$('#x-csv').onclick = function(){
+  var head=['날짜','시험유형','상위분류','세부과목','학습형태','교재/인강','들은강','진도범위','분','시간','푼문항','맞은문항','정답률','메모'];
+  function q(v){ return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'; }
+  var rows=D.logs.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(r){
+    var lec = r.lecFrom ? (r.lecFrom + (r.lecTo&&r.lecTo!==r.lecFrom?'~'+r.lecTo:'') + '강') : '';
+    return [r.date,r.type,r.group,(r.subs||[]).join(' · '),r.mode||'자습',r.material,lec,r.range,r.minutes,hm(r.minutes),
+      r.qTotal==null?'':r.qTotal, r.qCorrect==null?'':r.qCorrect,
+      (r.qTotal>0&&r.qCorrect!=null)?Math.round(r.qCorrect/r.qTotal*1000)/10+'%':'', r.memo].map(q).join(',');
+  });
+  dl('공부기록_'+today()+'.csv', '﻿'+[head.map(q).join(',')].concat(rows).join('\r\n'), 'text/csv;charset=utf-8');
+  toast('CSV를 내려받았습니다');
+};
+$('#x-import').onclick = function(){ $('#x-file').click(); };
+$('#x-file').onchange = function(){
+  var f=this.files[0]; if(!f) return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{ var o=JSON.parse(rd.result); if(!o.logs) throw new Error('bad');
+      if(!confirm('현재 데이터를 백업 파일 내용으로 교체합니다. 계속할까요?')) return;
+      adopt(o); save(); toast('불러왔습니다');
+    }catch(e){ toast('올바른 백업 파일이 아닙니다'); }
+  };
+  rd.readAsText(f); this.value='';
+};
+$('#x-clear').onclick = function(){
+  if(!confirm('정말 모두 삭제할까요? 되돌릴 수 없습니다.')) return;
+  if(!confirm('마지막 확인입니다. 백업은 받아두셨나요?')) return;
+  var dd=D.ddays, ty=D.types; D=blank(); D.ddays=dd; D.types=ty; save(); redrawAll(); toast('초기화되었습니다');
+};
+function drawData(){
+  var n=D.logs.length, tot=D.logs.reduce(function(s,r){return s+r.minutes;},0);
+  var first=n? D.logs.map(function(r){return r.date;}).sort()[0] : '-';
+  $('#x-info').innerHTML = '총 기록 <b>'+n+'건</b> · 누적 <b>'+hm(tot)+'</b> · 첫 기록 '+first;
+}
+
+/* ================= OneDrive 계정 동기화 ================= */
+var CFG='lawstudy.cfg', TOK='lawstudy.tok';
+var AUTH_URL='https://login.microsoftonline.com/common/oauth2/v2.0/authorize';
+var TOKEN_URL='https://login.microsoftonline.com/common/oauth2/v2.0/token';
+var SCOPE='Files.ReadWrite.AppFolder offline_access';
+var FILE_URL='https://graph.microsoft.com/v1.0/me/drive/special/approot:/lawstudy-data.json:/content';
+var clTimer=null, clBusy=false, clNote='';
+
+function cfg(){ try{ return JSON.parse(localStorage.getItem(CFG))||{}; }catch(e){ return {}; } }
+function setCfg(o){ localStorage.setItem(CFG, JSON.stringify(o)); }
+function tok(){ try{ return JSON.parse(localStorage.getItem(TOK))||null; }catch(e){ return null; } }
+function setTok(o){ if(o) localStorage.setItem(TOK, JSON.stringify(o)); else localStorage.removeItem(TOK); }
+function redirectUri(){ return location.origin + location.pathname; }
+function cloudReady(){ return location.protocol==='https:' && !!cfg().clientId; }
+
+function b64url(buf){
+  var s=''; var a=new Uint8Array(buf);
+  for(var i=0;i<a.length;i++) s+=String.fromCharCode(a[i]);
+  return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function randStr(n){
+  var a=new Uint8Array(n); crypto.getRandomValues(a);
+  return b64url(a.buffer).slice(0,n);
+}
+function clLogin(){
+  var c=cfg();
+  if(location.protocol!=='https:') return alert('인터넷 주소(https)로 열었을 때만 로그인할 수 있습니다.\n설명서의 설치 안내를 참고하세요.');
+  if(!c.clientId) return alert('먼저 “최초 1회 설정”을 열어 앱 ID를 입력해 주세요.');
+  var verifier=randStr(64), state=randStr(16);
+  sessionStorage.setItem('pkce', verifier);
+  sessionStorage.setItem('pkce_state', state);
+  crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)).then(function(h){
+    var q = 'client_id='+encodeURIComponent(c.clientId)
+      + '&response_type=code&redirect_uri='+encodeURIComponent(redirectUri())
+      + '&scope='+encodeURIComponent(SCOPE)
+      + '&code_challenge='+b64url(h)+'&code_challenge_method=S256'
+      + '&state='+state+'&prompt=select_account';
+    location.href = AUTH_URL+'?'+q;
+  }).catch(function(){ alert('로그인 준비 중 오류가 발생했습니다.'); });
+}
+function postForm(body){
+  return fetch(TOKEN_URL, {method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:Object.keys(body).map(function(k){ return k+'='+encodeURIComponent(body[k]); }).join('&')
+  }).then(function(r){ return r.json(); });
+}
+function storeTok(j){
+  if(!j || !j.access_token) throw new Error(j && j.error_description || '토큰 오류');
+  var t=tok()||{};
+  setTok({ access:j.access_token,
+           refresh:j.refresh_token || t.refresh,
+           exp: now() + (j.expires_in||3600)*1000 - 60000 });
+}
+function handleRedirect(){
+  var q=new URLSearchParams(location.search);
+  if(q.get('error')){
+    history.replaceState({}, '', redirectUri());
+    clNote='로그인 실패: '+(q.get('error_description')||q.get('error'));
+    drawCloud(); return Promise.resolve();
+  }
+  var code=q.get('code');
+  if(!code) return Promise.resolve();
+  var v=sessionStorage.getItem('pkce'), st=sessionStorage.getItem('pkce_state');
+  history.replaceState({}, '', redirectUri());
+  if(!v || q.get('state')!==st){ clNote='로그인 검증에 실패했습니다. 다시 시도해 주세요.'; drawCloud(); return Promise.resolve(); }
+  return postForm({ client_id:cfg().clientId, grant_type:'authorization_code', code:code,
+                    redirect_uri:redirectUri(), code_verifier:v, scope:SCOPE })
+    .then(storeTok)
+    .then(function(){ sessionStorage.removeItem('pkce'); clNote=''; toast('로그인되었습니다'); return cloudSync(true); })
+    .catch(function(e){ clNote='로그인 실패: '+(e.message||''); drawCloud(); });
+}
+function accessToken(){
+  var t=tok();
+  if(!t) return Promise.reject(new Error('로그인이 필요합니다'));
+  if(t.exp > now()) return Promise.resolve(t.access);
+  if(!t.refresh) return Promise.reject(new Error('다시 로그인해 주세요'));
+  return postForm({ client_id:cfg().clientId, grant_type:'refresh_token',
+                    refresh_token:t.refresh, redirect_uri:redirectUri(), scope:SCOPE })
+    .then(function(j){ storeTok(j); return tok().access; });
+}
+function cloudPull(){
+  return accessToken().then(function(a){
+    return fetch(FILE_URL, {headers:{Authorization:'Bearer '+a}});
+  }).then(function(r){
+    if(r.status===404) return null;
+    if(!r.ok) throw new Error('불러오기 실패 ('+r.status+')');
+    return r.text().then(function(t){ try{ return JSON.parse(t); }catch(e){ return null; } });
+  });
+}
+function cloudPush(doc){
+  return accessToken().then(function(a){
+    return fetch(FILE_URL, {method:'PUT',
+      headers:{Authorization:'Bearer '+a, 'Content-Type':'application/json'},
+      body: JSON.stringify(doc)});
+  }).then(function(r){ if(!r.ok) throw new Error('저장 실패 ('+r.status+')'); });
+}
+function cloudSync(silent){
+  if(!cloudReady() || !tok() || clBusy) return Promise.resolve();
+  clBusy=true; clNote='동기화 중…'; drawCloud();
+  return cloudPull().then(function(remote){
+    var merged = remote ? mergeDoc(D, remote) : D;
+    var changed = remote ? !sameDoc(merged, remote) : true;
+    if(remote && !sameDoc(merged, D)){
+      D = merged;
+      try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){}
+      redrawAll();
+    } else if(remote){ D = merged; }
+    return changed ? cloudPush(D) : null;
+  }).then(function(){
+    var c=cfg(); c.lastSync=now(); setCfg(c);
+    clNote=''; clBusy=false; drawCloud();
+    if(!silent) toast('동기화되었습니다');
+  }).catch(function(e){
+    clBusy=false; clNote='오류: '+(e.message||'동기화 실패'); drawCloud();
+    if(!silent) toast(clNote);
+  });
+}
+function cloudQueue(){
+  if(!cloudReady() || !tok()) return;
+  clearTimeout(clTimer);
+  clTimer=setTimeout(function(){ cloudSync(true); }, 2500);
+}
+function drawCloud(){
+  var el=$('#cl-state'); if(!el) return;
+  var c=cfg(), t=tok();
+  $('#cl-uri').textContent = redirectUri();
+  if($('#cl-id') && !$('#cl-id').value) $('#cl-id').value = c.clientId||'';
+  var html='';
+  if(location.protocol!=='https:'){
+    html='<span class="dot"></span>지금은 파일을 직접 열어 사용 중이라 계정 동기화를 쓸 수 없습니다. '
+       + '설명서의 설치 안내대로 인터넷 주소로 올리면 아이폰과 함께 쓸 수 있습니다.';
+  } else if(!c.clientId){
+    html='<span class="dot"></span>아직 설정 전입니다. 아래 “최초 1회 설정”을 열어 앱 ID를 입력하세요.';
+  } else if(!t){
+    html='<span class="dot"></span>로그인하면 동기화가 시작됩니다.';
+  } else {
+    html='<span class="dot on"></span>연결됨 · 기록이 바뀌면 자동으로 올라갑니다.'
+       + (c.lastSync? ' 마지막 동기화 '+new Date(c.lastSync).toLocaleString('ko-KR') : '');
+  }
+  if(clNote) html += '<br><span class="dot'+(clNote.indexOf('오류')===0?' err':'')+'"></span>'+esc(clNote);
+  el.innerHTML=html;
+}
+$('#cl-login').onclick  = clLogin;
+$('#cl-sync').onclick   = function(){ if(!tok()) return toast('먼저 로그인해 주세요'); cloudSync(false); };
+$('#cl-logout').onclick = function(){ setTok(null); clNote=''; drawCloud(); toast('로그아웃했습니다'); };
+$('#cl-save').onclick   = function(){
+  var v=$('#cl-id').value.trim();
+  var c=cfg(); c.clientId=v; setCfg(c); drawCloud();
+  toast(v? '저장되었습니다' : '앱 ID를 지웠습니다');
+};
+document.addEventListener('visibilitychange', function(){
+  if(!document.hidden && cloudReady() && tok()) cloudSync(true);
+});
+
+/* ================= 시작 ================= */
+function redrawAll(){
+  fillSelect($('#m-subject'), GROUP_ORDER, '— 상위분류 선택 —');
+  refreshFilters();
+  drawDday(); drawTypeAdmin(); drawPlan(); drawTypes(); drawMaterials();
+  drawToday(); drawCal(); drawList(); drawMat(); drawData(); drawCloud();
+  $('#g-hour').value=D.settings.goalMin/60;
+}
+tShow(); redrawAll(); renderFs();
+handleRedirect().then(function(){ if(cloudReady() && tok()) cloudSync(true); });
+
+if(window.showSaveFilePicker){
+  idbGet('file').then(function(h){
+    if(!h) return;
+    fh=h;
+    return h.queryPermission({mode:'readwrite'}).then(function(p){
+      if(p==='granted'){ fsOk=true; return fsLoadIfNewer(); }
+    });
+  }).then(function(){ renderFs(''); }).catch(function(){ renderFs(''); });
+}
+window.addEventListener('beforeunload', function(){ if(fsOk&&fh){ clearTimeout(fsTimer); fsWrite(); } });
+</script>
