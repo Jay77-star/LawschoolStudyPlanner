@@ -4,7 +4,7 @@
 <meta name="theme-color" content="#2f5d50">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="공부기록">
+<meta name="apple-mobile-web-app-title" content="L공부기록">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB4PSI1MCIgeT0iNTIiIGZvbnQtc2l6ZT0iODIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj7inaTvuI88L3RleHQ+PC9zdmc+">
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB4PSI1MCIgeT0iNTIiIGZvbnQtc2l6ZT0iODIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj7inaTvuI88L3RleHQ+PC9zdmc+">
 <style>
@@ -606,6 +606,16 @@ function groupOfSub(s){
   for(var g in GROUPS) if(GROUPS[g].indexOf(s)!==-1) return g;
   return null;
 }
+/* 세부 과목: 상위분류 색을 유지하되 진하기만 다르게 */
+var SCOLOR = {
+  '헌법':'#8f5119', '행정법':'#d29257',
+  '민법':'#55397d', '민사소송법':'#9a7cc0',
+  '형법총론':'#4a7623', '형법각론':'#7cb847', '형사소송법':'#b1d095',
+  '형법':'#5c8a33'
+};
+function subColor(s){ return SCOLOR[s] || gColor(groupOfSub(s) || s); }
+/* '민사법 · 신민사법 선택형 연습' 처럼 앞에 상위분류가 붙은 항목의 색 */
+function keyColor(k){ return gColor(String(k).split(' · ')[0]); }
 
 /* ================= 유틸 ================= */
 function $(s){ return document.querySelector(s); }
@@ -975,12 +985,15 @@ $('#f-type').onclick = function(e){
   drawGroups();
 };
 
+function chipStyle(color, on){
+  return on ? 'background:'+color+';border-color:'+color+';color:#fff'
+            : 'color:'+color+';border-color:'+color;
+}
 function drawGroups(){
   var sp=typeSpec(cur.type);
   $('#f-group').innerHTML = sp.groups.map(function(g){
     var on=g===cur.group;
-    return '<div class="chip'+(on?' on':'')+'" data-v="'+g+'"'
-      + (on?' style="background:'+gColor(g)+';border-color:'+gColor(g)+'"':'')+'>'+g+'</div>';
+    return '<div class="chip'+(on?' on':'')+'" data-v="'+g+'" style="'+chipStyle(gColor(g),on)+'">'+g+'</div>';
   }).join('');
   drawSubs();
 }
@@ -998,8 +1011,7 @@ function drawSubs(){
   $('#f-sub-wrap').classList.remove('hide');
   $('#f-sub').innerHTML = subs.map(function(s){
     var on=cur.subs.indexOf(s)!==-1;
-    return '<div class="chip sub'+(on?' on':'')+'" data-v="'+s+'"'
-      + (on?' style="background:'+gColor(cur.group)+';border-color:'+gColor(cur.group)+'"':'')+'>'+s+'</div>';
+    return '<div class="chip sub'+(on?' on':'')+'" data-v="'+s+'" style="'+chipStyle(subColor(s),on)+'">'+s+'</div>';
   }).join('');
 }
 $('#f-sub').onclick = function(e){
@@ -1386,7 +1398,7 @@ function drawDash(){
     var per=r.minutes/ls.length;
     ls.forEach(function(s){ sm[s]=(sm[s]||0)+per; });
   });
-  $('#d-subject').innerHTML = bars(sm, function(s){ return gColor(groupOfSub(s)||s); });
+  $('#d-subject').innerHTML = bars(sm, subColor);
 
   function agg(key){ var m={}; rows.forEach(function(r){ var k=r[key]||'미기재'; m[k]=(m[k]||0)+r.minutes; }); return m; }
   $('#d-type').innerHTML = bars(agg('type'));
@@ -1394,7 +1406,7 @@ function drawDash(){
 
   var mm={}; rows.forEach(function(r){ if(!r.material) return;
     var k=r.group+' · '+r.material; mm[k]=(mm[k]||0)+r.minutes; });
-  $('#d-mat').innerHTML = bars(mm);
+  $('#d-mat').innerHTML = bars(mm, keyColor);
 
   /* 인강 진도율 */
   var lecHtml='';
