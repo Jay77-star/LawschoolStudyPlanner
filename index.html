@@ -653,6 +653,40 @@ function migrate(o){
   }
   return o;
 }
+/* 같은 항목이 두 번 생기지 않도록 정리 (기기 간 병합 뒤 반드시 실행) */
+var dedupeRemoved=false;
+function dedupe(o){
+  function uniq(arr, keyf){
+    var a=(arr||[]).slice().sort(function(x,y){
+      return String(x.id||'').localeCompare(String(y.id||''));
+    });
+    var seen={}, out=[];
+    a.forEach(function(x){
+      if(!x) return;
+      var k=keyf(x);
+      if(seen[k]) return;
+      seen[k]=1; out.push(x);
+    });
+    if(out.length < a.length) dedupeRemoved=true;
+    return out;
+  }
+  if(o.ddays) o.ddays = uniq(o.ddays, function(x){ return (x.name||'')+'|'+(x.date||''); });
+  if(o.types) o.types = uniq(o.types, function(x){ return x.name||''; });
+  ['books','lectures'].forEach(function(k){
+    var src=o[k]||{};
+    Object.keys(src).forEach(function(g){
+      var seen={}, out=[];
+      (src[g]||[]).forEach(function(it){
+        if(!it || !it.name || seen[it.name]) return;
+        seen[it.name]=1; out.push(it);
+      });
+      if(out.length < (src[g]||[]).length) dedupeRemoved=true;
+      src[g]=out;
+    });
+  });
+  return o;
+}
+
 function load(){
   var o=null;
   try{ var r=localStorage.getItem(KEY); if(r) o=JSON.parse(r); }catch(e){}
@@ -662,12 +696,13 @@ function load(){
     b.plans=o.plans||{}; b.ddays=o.ddays||null; b.types=o.types||null;
     b.settings=Object.assign({goalMin:600}, o.settings||{});
     b.tomb=o.tomb||{}; b.updatedAt=o.updatedAt||0; }
+  /* 기본 항목은 기기가 달라도 같은 번호를 쓰도록 고정 */
   if(!b.ddays) b.ddays=[
-    {id:uid(), name:'변호사시험', date:'2027-01-12'},
-    {id:uid(), name:'10월 모의고사', date:'2026-10-16'}
+    {id:'dd-bar',   name:'변호사시험',   date:'2027-01-12', mt:0},
+    {id:'dd-mock1', name:'10월 모의고사', date:'2026-10-16', mt:0}
   ];
-  if(!b.types) b.types=[{id:uid(), name:'최신판례', lectureOnly:true}];
-  return b;
+  if(!b.types) b.types=[{id:'ty-newcase', name:'최신판례', lectureOnly:true, mt:0}];
+  return dedupe(b);
 }
 function save(){
   D.updatedAt = now();
@@ -756,7 +791,7 @@ function mergeDoc(a, b){
   var newer = (a.updatedAt||0) >= (b.updatedAt||0) ? a : b;
   out.settings = Object.assign({goalMin:600}, newer.settings||{});
   out.updatedAt = Math.max(a.updatedAt||0, b.updatedAt||0);
-  return out;
+  return dedupe(out);
 }
 function sameDoc(x,y){
   try{ return JSON.stringify(x)===JSON.stringify(y); }catch(e){ return false; }
@@ -1547,6 +1582,7 @@ function adopt(o){
   D.plans=o.plans||{}; D.ddays=o.ddays||D.ddays; D.types=o.types||D.types;
   D.tomb=o.tomb||{};
   D.settings=Object.assign({goalMin:600},o.settings||{});
+  dedupe(D);
   try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){}
   redrawAll();
 }
@@ -1727,6 +1763,7 @@ function redrawAll(){
   $('#g-hour').value=D.settings.goalMin/60;
 }
 tShow(); redrawAll(); renderFs();
+if(dedupeRemoved){ dedupeRemoved=false; save(); toast('중복된 항목을 정리했습니다'); }
 if(cloudReady()) cloudSync(true);
 
 if(window.showSaveFilePicker){
