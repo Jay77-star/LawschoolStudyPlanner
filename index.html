@@ -510,29 +510,24 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
   </div>
 
   <div class="card">
-    <h2>OneDrive 계정 동기화 <small>맥 · 아이폰 함께 쓰기</small></h2>
+    <h2>기기 간 동기화 <small>맥 · 아이폰 함께 쓰기</small></h2>
     <div class="hint" style="margin:0 0 12px">
-      Microsoft 계정으로 로그인하면 OneDrive에 기록이 저장되어, 맥과 아이폰 어디서 입력해도 같은 내용이 보입니다.
+      GitHub 계정의 <b>비공개 저장 공간</b>에 기록을 보관해 맥과 아이폰이 같은 내용을 봅니다.
       두 기기에서 따로 입력해도 기록이 사라지지 않도록 항목 단위로 합쳐집니다.
     </div>
     <div id="cl-state" class="hint" style="margin:0 0 12px"></div>
-    <div class="chips" style="margin-bottom:12px">
-      <button class="btn" id="cl-login">Microsoft 계정 로그인</button>
-      <button class="btn ghost" id="cl-sync">지금 동기화</button>
-      <button class="btn ghost" id="cl-logout">로그아웃</button>
-    </div>
-    <details>
-      <summary style="cursor:pointer;font-size:12.5px;color:var(--sub)">최초 1회 설정 (앱 ID 입력)</summary>
-      <div style="margin-top:10px">
-        <label>앱(클라이언트) ID</label>
-        <div style="display:flex;gap:8px">
-          <input type="text" id="cl-id" placeholder="00000000-0000-0000-0000-000000000000">
-          <button class="btn ghost" id="cl-save" style="white-space:nowrap">저장</button>
-        </div>
-        <div class="hint">설명서의 “설치 안내”를 따라 한 번만 만들면 됩니다. 이 주소를 리디렉션 URI로 등록하세요:</div>
-        <div class="hint" style="word-break:break-all;background:var(--accent-soft);padding:8px 10px;border-radius:7px;margin-top:6px" id="cl-uri"></div>
+    <div style="margin-bottom:10px">
+      <label>연결 토큰</label>
+      <div style="display:flex;gap:8px">
+        <input type="password" id="cl-id" placeholder="ghp_ 로 시작하는 문자열" autocomplete="off">
+        <button class="btn" id="cl-save" style="white-space:nowrap">연결</button>
       </div>
-    </details>
+      <div class="hint">설명서의 “설치 안내”를 따라 GitHub에서 한 번만 만들면 됩니다. 기기마다 한 번씩 넣어주세요.</div>
+    </div>
+    <div class="chips">
+      <button class="btn ghost" id="cl-sync">지금 동기화</button>
+      <button class="btn ghost" id="cl-logout">연결 해제</button>
+    </div>
   </div>
 
   <div class="card">
@@ -1598,114 +1593,80 @@ function drawData(){
   $('#x-info').innerHTML = '총 기록 <b>'+n+'건</b> · 누적 <b>'+hm(tot)+'</b> · 첫 기록 '+first;
 }
 
-/* ================= OneDrive 계정 동기화 ================= */
-var CFG='lawstudy.cfg', TOK='lawstudy.tok';
-var AUTH_URL='https://login.microsoftonline.com/common/oauth2/v2.0/authorize';
-var TOKEN_URL='https://login.microsoftonline.com/common/oauth2/v2.0/token';
-var SCOPE='Files.ReadWrite.AppFolder offline_access';
-var FILE_URL='https://graph.microsoft.com/v1.0/me/drive/special/approot:/lawstudy-data.json:/content';
+/* ================= 기기 간 동기화 (GitHub 비공개 Gist) ================= */
+var CFG='lawstudy.cfg';
+var GH='https://api.github.com';
+var FNAME='lawstudy-data.json';
 var clTimer=null, clBusy=false, clNote='';
 
 function cfg(){ try{ return JSON.parse(localStorage.getItem(CFG))||{}; }catch(e){ return {}; } }
-function setCfg(o){ localStorage.setItem(CFG, JSON.stringify(o)); }
-function tok(){ try{ return JSON.parse(localStorage.getItem(TOK))||null; }catch(e){ return null; } }
-function setTok(o){ if(o) localStorage.setItem(TOK, JSON.stringify(o)); else localStorage.removeItem(TOK); }
-function redirectUri(){ return location.origin + location.pathname; }
-function cloudReady(){ return location.protocol==='https:' && !!cfg().clientId; }
+function setCfg(o){ try{ localStorage.setItem(CFG, JSON.stringify(o)); }catch(e){} }
+function ghToken(){ return (cfg().token||'').trim(); }
+function cloudReady(){ return !!ghToken(); }
 
-function b64url(buf){
-  var s=''; var a=new Uint8Array(buf);
-  for(var i=0;i<a.length;i++) s+=String.fromCharCode(a[i]);
-  return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+function gh(path, opt){
+  opt = opt || {};
+  opt.headers = Object.assign({
+    'Authorization':'Bearer '+ghToken(),
+    'Accept':'application/vnd.github+json',
+    'X-GitHub-Api-Version':'2022-11-28'
+  }, opt.headers||{});
+  return fetch(GH+path, opt).then(function(r){
+    if(r.status===401) throw new Error('토큰이 올바르지 않습니다. 다시 만들어 넣어 주세요');
+    if(r.status===403 || r.status===404) throw new Error('토큰에 gist 권한이 켜져 있는지 확인해 주세요');
+    if(!r.ok) throw new Error('통신 실패 ('+r.status+')');
+    return r.status===204 ? null : r.json();
+  });
 }
-function randStr(n){
-  var a=new Uint8Array(n); crypto.getRandomValues(a);
-  return b64url(a.buffer).slice(0,n);
-}
-function clLogin(){
+function findGist(){
   var c=cfg();
-  if(location.protocol!=='https:') return alert('인터넷 주소(https)로 열었을 때만 로그인할 수 있습니다.\n설명서의 설치 안내를 참고하세요.');
-  if(!c.clientId) return alert('먼저 “최초 1회 설정”을 열어 앱 ID를 입력해 주세요.');
-  var verifier=randStr(64), state=randStr(16);
-  sessionStorage.setItem('pkce', verifier);
-  sessionStorage.setItem('pkce_state', state);
-  crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)).then(function(h){
-    var q = 'client_id='+encodeURIComponent(c.clientId)
-      + '&response_type=code&redirect_uri='+encodeURIComponent(redirectUri())
-      + '&scope='+encodeURIComponent(SCOPE)
-      + '&code_challenge='+b64url(h)+'&code_challenge_method=S256'
-      + '&state='+state+'&prompt=select_account';
-    location.href = AUTH_URL+'?'+q;
-  }).catch(function(){ alert('로그인 준비 중 오류가 발생했습니다.'); });
+  if(c.gistId) return Promise.resolve(c.gistId);
+  return gh('/gists?per_page=100').then(function(list){
+    var hit=null;
+    (list||[]).forEach(function(g){ if(!hit && g.files && g.files[FNAME]) hit=g.id; });
+    if(hit){ var cc=cfg(); cc.gistId=hit; setCfg(cc); }
+    return hit;
+  });
 }
-function postForm(body){
-  return fetch(TOKEN_URL, {method:'POST',
-    headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:Object.keys(body).map(function(k){ return k+'='+encodeURIComponent(body[k]); }).join('&')
-  }).then(function(r){ return r.json(); });
+function createGist(doc){
+  var body={ description:'로스쿨 공부 기록 데이터 (자동 생성 · 지우지 마세요)', public:false, files:{} };
+  body.files[FNAME]={ content: JSON.stringify(doc) };
+  return gh('/gists', {method:'POST', body:JSON.stringify(body)}).then(function(g){
+    var c=cfg(); c.gistId=g.id; setCfg(c); return g.id;
+  });
 }
-function storeTok(j){
-  if(!j || !j.access_token) throw new Error(j && j.error_description || '토큰 오류');
-  var t=tok()||{};
-  setTok({ access:j.access_token,
-           refresh:j.refresh_token || t.refresh,
-           exp: now() + (j.expires_in||3600)*1000 - 60000 });
-}
-function handleRedirect(){
-  var q=new URLSearchParams(location.search);
-  if(q.get('error')){
-    history.replaceState({}, '', redirectUri());
-    clNote='로그인 실패: '+(q.get('error_description')||q.get('error'));
-    drawCloud(); return Promise.resolve();
-  }
-  var code=q.get('code');
-  if(!code) return Promise.resolve();
-  var v=sessionStorage.getItem('pkce'), st=sessionStorage.getItem('pkce_state');
-  history.replaceState({}, '', redirectUri());
-  if(!v || q.get('state')!==st){ clNote='로그인 검증에 실패했습니다. 다시 시도해 주세요.'; drawCloud(); return Promise.resolve(); }
-  return postForm({ client_id:cfg().clientId, grant_type:'authorization_code', code:code,
-                    redirect_uri:redirectUri(), code_verifier:v, scope:SCOPE })
-    .then(storeTok)
-    .then(function(){ sessionStorage.removeItem('pkce'); clNote=''; toast('로그인되었습니다'); return cloudSync(true); })
-    .catch(function(e){ clNote='로그인 실패: '+(e.message||''); drawCloud(); });
-}
-function accessToken(){
-  var t=tok();
-  if(!t) return Promise.reject(new Error('로그인이 필요합니다'));
-  if(t.exp > now()) return Promise.resolve(t.access);
-  if(!t.refresh) return Promise.reject(new Error('다시 로그인해 주세요'));
-  return postForm({ client_id:cfg().clientId, grant_type:'refresh_token',
-                    refresh_token:t.refresh, redirect_uri:redirectUri(), scope:SCOPE })
-    .then(function(j){ storeTok(j); return tok().access; });
-}
+function parseDoc(t){ try{ var o=JSON.parse(t); return (o && o.logs) ? o : null; }catch(e){ return null; } }
 function cloudPull(){
-  return accessToken().then(function(a){
-    return fetch(FILE_URL, {headers:{Authorization:'Bearer '+a}});
-  }).then(function(r){
-    if(r.status===404) return null;
-    if(!r.ok) throw new Error('불러오기 실패 ('+r.status+')');
-    return r.text().then(function(t){ try{ return JSON.parse(t); }catch(e){ return null; } });
+  return findGist().then(function(id){
+    if(!id) return null;
+    return gh('/gists/'+id).then(function(g){
+      var f = g.files && g.files[FNAME];
+      if(!f) return null;
+      if(f.truncated && f.raw_url)
+        return fetch(f.raw_url).then(function(r){ return r.text(); }).then(parseDoc);
+      return parseDoc(f.content);
+    });
   });
 }
 function cloudPush(doc){
-  return accessToken().then(function(a){
-    return fetch(FILE_URL, {method:'PUT',
-      headers:{Authorization:'Bearer '+a, 'Content-Type':'application/json'},
-      body: JSON.stringify(doc)});
-  }).then(function(r){ if(!r.ok) throw new Error('저장 실패 ('+r.status+')'); });
+  return findGist().then(function(id){
+    if(!id) return createGist(doc);
+    var body={files:{}}; body.files[FNAME]={ content: JSON.stringify(doc) };
+    return gh('/gists/'+id, {method:'PATCH', body:JSON.stringify(body)});
+  });
 }
 function cloudSync(silent){
-  if(!cloudReady() || !tok() || clBusy) return Promise.resolve();
+  if(!cloudReady() || clBusy) return Promise.resolve();
   clBusy=true; clNote='동기화 중…'; drawCloud();
   return cloudPull().then(function(remote){
     var merged = remote ? mergeDoc(D, remote) : D;
-    var changed = remote ? !sameDoc(merged, remote) : true;
+    var needPush = remote ? !sameDoc(merged, remote) : true;
     if(remote && !sameDoc(merged, D)){
       D = merged;
       try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){}
       redrawAll();
     } else if(remote){ D = merged; }
-    return changed ? cloudPush(D) : null;
+    return needPush ? cloudPush(D) : null;
   }).then(function(){
     var c=cfg(); c.lastSync=now(); setCfg(c);
     clNote=''; clBusy=false; drawCloud();
@@ -1716,40 +1677,45 @@ function cloudSync(silent){
   });
 }
 function cloudQueue(){
-  if(!cloudReady() || !tok()) return;
+  if(!cloudReady()) return;
   clearTimeout(clTimer);
   clTimer=setTimeout(function(){ cloudSync(true); }, 2500);
 }
 function drawCloud(){
   var el=$('#cl-state'); if(!el) return;
-  var c=cfg(), t=tok();
-  $('#cl-uri').textContent = redirectUri();
-  if($('#cl-id') && !$('#cl-id').value) $('#cl-id').value = c.clientId||'';
-  var html='';
-  if(location.protocol!=='https:'){
-    html='<span class="dot"></span>지금은 파일을 직접 열어 사용 중이라 계정 동기화를 쓸 수 없습니다. '
-       + '설명서의 설치 안내대로 인터넷 주소로 올리면 아이폰과 함께 쓸 수 있습니다.';
-  } else if(!c.clientId){
-    html='<span class="dot"></span>아직 설정 전입니다. 아래 “최초 1회 설정”을 열어 앱 ID를 입력하세요.';
-  } else if(!t){
-    html='<span class="dot"></span>로그인하면 동기화가 시작됩니다.';
+  var c=cfg();
+  var html;
+  if(!c.token){
+    html='<span class="dot"></span>아직 연결되지 않았습니다. 설명서를 따라 만든 토큰을 아래에 넣어 주세요.';
+  } else if(clBusy){
+    html='<span class="dot on"></span>동기화 중…';
   } else {
     html='<span class="dot on"></span>연결됨 · 기록이 바뀌면 자동으로 올라갑니다.'
-       + (c.lastSync? ' 마지막 동기화 '+new Date(c.lastSync).toLocaleString('ko-KR') : '');
+       + (c.lastSync ? ' 마지막 동기화 '+new Date(c.lastSync).toLocaleString('ko-KR') : '');
   }
-  if(clNote) html += '<br><span class="dot'+(clNote.indexOf('오류')===0?' err':'')+'"></span>'+esc(clNote);
+  if(clNote && clNote.indexOf('오류')===0) html += '<br><span class="dot err"></span>'+esc(clNote);
   el.innerHTML=html;
 }
-$('#cl-login').onclick  = clLogin;
-$('#cl-sync').onclick   = function(){ if(!tok()) return toast('먼저 로그인해 주세요'); cloudSync(false); };
-$('#cl-logout').onclick = function(){ setTok(null); clNote=''; drawCloud(); toast('로그아웃했습니다'); };
-$('#cl-save').onclick   = function(){
+$('#cl-save').onclick = function(){
   var v=$('#cl-id').value.trim();
-  var c=cfg(); c.clientId=v; setCfg(c); drawCloud();
-  toast(v? '저장되었습니다' : '앱 ID를 지웠습니다');
+  var c=cfg();
+  if(!v){ return toast('토큰을 붙여넣어 주세요'); }
+  c.token=v; delete c.gistId; setCfg(c);
+  $('#cl-id').value='';
+  clNote=''; drawCloud(); toast('연결 중…');
+  cloudSync(false);
+};
+$('#cl-id').onkeydown = function(e){ if(e.key==='Enter') $('#cl-save').click(); };
+$('#cl-sync').onclick = function(){
+  if(!cloudReady()) return toast('먼저 토큰을 넣어 주세요');
+  cloudSync(false);
+};
+$('#cl-logout').onclick = function(){
+  if(!confirm('이 기기에서 연결을 끊습니다. 기록은 지워지지 않습니다. 계속할까요?')) return;
+  setCfg({}); clNote=''; drawCloud(); toast('연결을 해제했습니다');
 };
 document.addEventListener('visibilitychange', function(){
-  if(!document.hidden && cloudReady() && tok()) cloudSync(true);
+  if(!document.hidden && cloudReady()) cloudSync(true);
 });
 
 /* ================= 시작 ================= */
@@ -1761,7 +1727,7 @@ function redrawAll(){
   $('#g-hour').value=D.settings.goalMin/60;
 }
 tShow(); redrawAll(); renderFs();
-handleRedirect().then(function(){ if(cloudReady() && tok()) cloudSync(true); });
+if(cloudReady()) cloudSync(true);
 
 if(window.showSaveFilePicker){
   idbGet('file').then(function(h){
