@@ -1100,20 +1100,47 @@ $('#f-qt').oninput = calcAcc; $('#f-qc').oninput = calcAcc;
 $$('[data-add]').forEach(function(c){ c.onclick=function(){
   $('#f-min').value = (+$('#f-min').value||0) + (+c.dataset.add); }; });
 
-/* 스톱워치 */
-var tRun=false, tSec=0, tId=null;
-function tShow(){
-  var h=String(Math.floor(tSec/3600)); while(h.length<2) h='0'+h;
-  var m=String(Math.floor(tSec%3600/60)); while(m.length<2) m='0'+m;
-  var s=String(tSec%60); while(s.length<2) s='0'+s;
-  $('#t-disp').textContent = h+':'+m+':'+s;
+/* 스톱워치 — 화면을 잠그거나 앱을 나가도 실제 흐른 시간으로 계산 */
+var TKEY='lawstudy.timer';
+var tRun=false, tAcc=0, tStart=0, tId=null;
+function tSecNow(){ return tAcc + (tRun ? Math.max(0, Math.floor((Date.now()-tStart)/1000)) : 0); }
+function tSave(){ try{ localStorage.setItem(TKEY, JSON.stringify({run:tRun, acc:tAcc, start:tStart})); }catch(e){} }
+function tLoad(){
+  try{
+    var o=JSON.parse(localStorage.getItem(TKEY));
+    if(o){ tRun=!!o.run; tAcc=o.acc||0; tStart=o.start||Date.now(); }
+  }catch(e){}
 }
-$('#t-start').onclick = function(){
-  if(tRun){ clearInterval(tId); tRun=false; $('#t-start').textContent='계속';
-    var mins=Math.max(1,Math.round(tSec/60)); $('#f-min').value=mins; toast(hm(mins)+' 기록됨'); }
-  else { tRun=true; $('#t-start').textContent='정지'; tId=setInterval(function(){tSec++;tShow();},1000); }
-};
-$('#t-reset').onclick = function(){ clearInterval(tId); tRun=false; tSec=0; $('#t-start').textContent='시작'; tShow(); };
+function tShow(){
+  var sec=tSecNow();
+  var h=String(Math.floor(sec/3600)); while(h.length<2) h='0'+h;
+  var m=String(Math.floor(sec%3600/60)); while(m.length<2) m='0'+m;
+  var s=String(sec%60); while(s.length<2) s='0'+s;
+  var el=$('#t-disp'); if(el) el.textContent = h+':'+m+':'+s;
+  var b=$('#t-start'); if(b) b.textContent = tRun ? '정지' : (tAcc>0 ? '계속' : '시작');
+}
+function tGo(){
+  tRun=true; tStart=Date.now();
+  clearInterval(tId); tId=setInterval(tShow, 1000);
+  tSave(); tShow();
+}
+function tStop(fill){
+  if(tRun){ tAcc=tSecNow(); tRun=false; }
+  clearInterval(tId); tId=null;
+  tSave(); tShow();
+  if(fill && tAcc>0){
+    var mins=Math.max(1, Math.round(tAcc/60));
+    $('#f-min').value=mins;
+    toast(hm(mins)+' 기록됨');
+  }
+}
+function tReset(){
+  tRun=false; tAcc=0; tStart=0;
+  clearInterval(tId); tId=null;
+  tSave(); tShow();
+}
+$('#t-start').onclick = function(){ if(tRun) tStop(true); else tGo(); };
+$('#t-reset').onclick = tReset;
 
 /* 저장 */
 $('#f-save').onclick = function(){
@@ -1160,8 +1187,7 @@ function resetForm(all){
   $('#f-min').value=''; $('#f-range').value=''; $('#f-qt').value=''; $('#f-qc').value='';
   $('#f-acc').value=''; $('#f-memo').value='';
   $('#f-lec-from').value=''; $('#f-lec-to').value='';
-  clearInterval(tId); tRun=false; tSec=0; $('#t-start').textContent='시작'; tShow();
-  drawLec(true);
+  tReset(); drawLec(true);
   if(all){ $('#f-date').value=today(); drawPlan(); }
 }
 function edit(id){
@@ -1782,7 +1808,10 @@ $('#cl-logout').onclick = function(){
   setCfg({}); clNote=''; drawCloud(); toast('연결을 해제했습니다');
 };
 document.addEventListener('visibilitychange', function(){
-  if(!document.hidden && cloudReady()) cloudSync(true);
+  if(document.hidden) return;
+  tShow();                      /* 잠금 해제 후 실제 흐른 시간 반영 */
+  if(tRun){ clearInterval(tId); tId=setInterval(tShow,1000); }
+  if(cloudReady()) cloudSync(true);
 });
 
 /* 화면을 돌리거나 크기가 바뀌면 그래프를 다시 그린다 */
@@ -1802,7 +1831,9 @@ function redrawAll(){
   drawToday(); drawCal(); drawList(); drawMat(); drawData(); drawCloud();
   $('#g-hour').value=D.settings.goalMin/60;
 }
-tShow(); redrawAll(); renderFs();
+tLoad(); tShow();
+if(tRun){ clearInterval(tId); tId=setInterval(tShow,1000); }
+redrawAll(); renderFs();
 if(dedupeRemoved){ dedupeRemoved=false; save(); toast('중복된 항목을 정리했습니다'); }
 if(cloudReady()) cloudSync(true);
 
