@@ -121,7 +121,14 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 .pbar{height:7px;background:#eeece7;border-radius:4px;overflow:hidden;margin-top:10px}
 .pbar div{height:100%;background:var(--accent);border-radius:4px;transition:width .3s}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.cal .wd{text-align:center;font-size:11.5px;color:var(--sub);padding:4px 0;font-weight:600}
+.cal .wd{text-align:center;font-size:11.5px;color:var(--sub);padding:4px 0 0;font-weight:600}
+.cal .wd i{display:block;height:3px;border-radius:2px;margin-top:4px}
+.daybadge{display:inline-block;font-size:12.5px;font-weight:600;padding:3px 12px;
+  border-radius:14px;white-space:nowrap;vertical-align:1px}
+.daybadge:empty{display:none}
+.wkrow{display:grid;grid-template-columns:36px 1fr 128px;gap:8px;align-items:center;margin-bottom:8px}
+.wkday{text-align:center;padding:7px 0;border-radius:8px;font-size:12.5px;font-weight:700}
+@media(max-width:640px){ .wkrow{grid-template-columns:30px 1fr 106px;gap:6px} }
 .cal .cell{aspect-ratio:1/1;border-radius:9px;background:var(--c0);padding:6px;cursor:pointer;
   display:flex;flex-direction:column;justify-content:space-between;border:2px solid transparent;
   transition:.12s;min-height:56px;position:relative}
@@ -236,7 +243,7 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 <!-- ============ 기록하기 ============ -->
 <section id="tab-log">
   <div class="card">
-    <h2><span>오늘의 계획 <small id="p-date"></small></span>
+    <h2><span>오늘의 계획 <span id="p-subj" class="daybadge"></span> <small id="p-date"></small></span>
         <span><button class="btn sm ghost" id="p-copy">지난 계획 불러오기</button></span></h2>
     <div style="display:flex;gap:8px;margin-bottom:12px">
       <input type="text" id="p-new" placeholder="예: 민법 인강 3강 / 형소법 기출 40문항">
@@ -521,6 +528,15 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
   </div>
 
   <div class="card">
+    <h2>요일별 공부 계획 <small>기록하기 배지와 달력 요일 색에 쓰입니다</small></h2>
+    <div class="hint" style="margin:0 0 12px">
+      계획이 바뀌면 여기서 바로 고치세요. 이름을 비우면 배지가 표시되지 않습니다.
+    </div>
+    <div id="wk-list"></div>
+    <button class="btn ghost sm" id="wk-reset" style="margin-top:6px">기본값으로 되돌리기</button>
+  </div>
+
+  <div class="card">
     <h2>하루 목표 시간</h2>
     <div class="hint" style="margin:0 0 12px">통계 참고 지표입니다. 달력의 색은 <b>계획 완료율</b> 기준입니다.</div>
     <div style="display:flex;gap:8px;align-items:center;max-width:260px">
@@ -614,6 +630,77 @@ var SCOLOR = {
   '형법':'#5c8a33'
 };
 function subColor(s){ return SCOLOR[s] || gColor(groupOfSub(s) || s); }
+
+/* 요일별 공부 계획 (월요일 시작) — 설정에서 바꿀 수 있음 */
+var DAY_NAMES = ['월','화','수','목','금','토','일'];
+var DAYPAL = {
+  '공법':   {bg:'#b56a26', fg:'#fff'},
+  '민사법': {bg:'#6f4f9c', fg:'#fff'},
+  '형사법': {bg:'#5c8a33', fg:'#fff'},
+  '상법':   {bg:'#b56081', fg:'#fff'},
+  '환경법': {bg:'#356f95', fg:'#fff'},
+  '버퍼':   {bg:'#767268', fg:'#fff'},
+  '휴식':   {bg:'#d5d1c8', fg:'#3a3833'},
+  '색 없음':{bg:'',        fg:''}
+};
+var DEFAULT_WEEK = [
+  {name:'공법',          key:'공법'},
+  {name:'민사 (선+사)',   key:'민사법'},
+  {name:'형사',          key:'형사법'},
+  {name:'버퍼',          key:'버퍼'},
+  {name:'상법',          key:'상법'},
+  {name:'민사 (선+기)',   key:'민사법'},
+  {name:'휴식 · 오후공부', key:'휴식'}
+];
+function weekArr(){
+  var w = D.settings && D.settings.week;
+  if(!w || w.length!==7) return DEFAULT_WEEK.map(function(x){ return {name:x.name, key:x.key}; });
+  return w;
+}
+function dayPal(key){ return DAYPAL[key] || DAYPAL['색 없음']; }
+function weekOf(dateStr){
+  var p=(dateStr||today()).split('-');
+  var dt=new Date(+p[0], +p[1]-1, +p[2]);
+  var i=(dt.getDay()+6)%7;
+  var it=weekArr()[i] || {name:'', key:'색 없음'};
+  var pal=dayPal(it.key);
+  return { d:DAY_NAMES[i], name:it.name||'', bg:pal.bg, fg:pal.fg };
+}
+function drawWeekAdmin(){
+  var el=$('#wk-list'); if(!el) return;
+  var w=weekArr();
+  el.innerHTML = w.map(function(it,i){
+    var pal=dayPal(it.key);
+    return '<div class="wkrow">'
+      + '<span class="wkday" style="'
+        + (pal.bg ? 'background:'+pal.bg+';color:'+pal.fg
+                  : 'border:1px solid var(--line);color:var(--sub)')+'">'+DAY_NAMES[i]+'</span>'
+      + '<input type="text" value="'+esc(it.name||'')+'" placeholder="예: 공법 / 버퍼 / 휴식" '
+        + 'oninput="__wkName('+i+',this.value)">'
+      + '<select onchange="__wkKey('+i+',this.value)">'
+        + Object.keys(DAYPAL).map(function(k){
+            return '<option'+(k===it.key?' selected':'')+'>'+k+'</option>'; }).join('')
+      + '</select></div>';
+  }).join('');
+}
+function ensureWeek(){
+  if(!D.settings.week || D.settings.week.length!==7)
+    D.settings.week = DEFAULT_WEEK.map(function(x){ return {name:x.name, key:x.key}; });
+  return D.settings.week;
+}
+window.__wkName = function(i,v){
+  ensureWeek()[i].name = v;
+  save(); drawPlan(); if(!$('#tab-cal').classList.contains('hide')) drawCal();
+};
+window.__wkKey = function(i,v){
+  ensureWeek()[i].key = v;
+  save(); drawWeekAdmin(); drawPlan(); if(!$('#tab-cal').classList.contains('hide')) drawCal();
+};
+$('#wk-reset').onclick = function(){
+  if(!confirm('요일별 계획을 처음 상태로 되돌릴까요?')) return;
+  D.settings.week = DEFAULT_WEEK.map(function(x){ return {name:x.name, key:x.key}; });
+  save(); drawWeekAdmin(); drawPlan(); drawCal(); toast('되돌렸습니다');
+};
 /* '민사법 · 신민사법 선택형 연습' 처럼 앞에 상위분류가 붙은 항목의 색 */
 function keyColor(k){ return gColor(String(k).split(' · ')[0]); }
 
@@ -907,7 +994,7 @@ $$('nav button').forEach(function(b){ b.onclick=function(){
   if(b.dataset.t==='dash') drawDash();
   if(b.dataset.t==='list') drawList();
   if(b.dataset.t==='mat')  drawMat();
-  if(b.dataset.t==='set')  { drawTypeAdmin(); drawDday(); drawData(); $('#g-hour').value=(D.settings.goalMin/60); }
+  if(b.dataset.t==='set')  { drawTypeAdmin(); drawDday(); drawWeekAdmin(); drawData(); $('#g-hour').value=(D.settings.goalMin/60); }
 };});
 
 /* ================= 계획 ================= */
@@ -919,6 +1006,11 @@ function planStat(d){
 function drawPlan(){
   var d=$('#f-date').value || today();
   $('#p-date').textContent = d===today()? '' : '('+d+')';
+  var w=weekOf(d);
+  var badge=$('#p-subj');
+  badge.textContent = w.d+' · '+w.name;
+  badge.style.background = w.bg;
+  badge.style.color = w.fg;
   var p=plansOf(d);
   $('#p-list').innerHTML = p.length ? p.map(function(x){
     return '<div class="plan'+(x.done?' done':'')+'">'
@@ -1294,7 +1386,11 @@ function drawCal(){
   var last=new Date(calY,calM+1,0);
   var lead=(new Date(calY,calM,1).getDay()+6)%7;
   var html='';
-  ['월','화','수','목','금','토','일'].forEach(function(w){ html+='<div class="wd">'+w+'</div>'; });
+  weekArr().forEach(function(it,i){
+    var pal=dayPal(it.key);
+    html+='<div class="wd" title="'+esc(it.name||'')+'">'+DAY_NAMES[i]
+        + '<i style="background:'+(pal.bg||'transparent')+'"></i></div>';
+  });
   for(var i=0;i<lead;i++) html+='<div class="cell blank"></div>';
   var doneDays=0, studyDays=0, totMin=0;
   for(var d=1;d<=last.getDate();d++){
@@ -1839,7 +1935,7 @@ window.addEventListener('resize', function(){
 function redrawAll(){
   fillSelect($('#m-subject'), GROUP_ORDER, '— 상위분류 선택 —');
   refreshFilters();
-  drawDday(); drawTypeAdmin(); drawPlan(); drawTypes(); drawMaterials();
+  drawDday(); drawTypeAdmin(); drawWeekAdmin(); drawPlan(); drawTypes(); drawMaterials();
   drawToday(); drawCal(); drawList(); drawMat(); drawData(); drawCloud();
   $('#g-hour').value=D.settings.goalMin/60;
 }
