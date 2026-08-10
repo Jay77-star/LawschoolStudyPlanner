@@ -14,7 +14,7 @@
   /* 과목 색: 공법=주황, 민사법=보라, 형사법=녹색, 상법=분홍, 환경법=파랑 */
   --gong:#b56a26; --minsa:#6f4f9c; --hyeong:#5c8a33; --sang:#b56081; --hwan:#356f95;
   --warn:#b4553a;
-  --c0:#eeece7; --c1:#cfdcd6; --c2:#8fb3a8; --c3:#2f5d50;
+  --c0:#eeece7; --c1:#d3e0d9; --c2:#a9c4b8; --c3:#6f9b8a; --c4:#2f5d50;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);
@@ -139,15 +139,25 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 .cal .cell .v{font-size:10.5px;color:var(--sub);font-variant-numeric:tabular-nums;line-height:1.2}
 .cal .cell.l1{background:var(--c1)}
 .cal .cell.l2{background:var(--c2)}
-.cal .cell.l2 .n,.cal .cell.l2 .v{color:#eef4f1}
 .cal .cell.l3{background:var(--c3)}
-.cal .cell.l3 .n,.cal .cell.l3 .v{color:#fff}
+.cal .cell.l3 .n,.cal .cell.l3 .v{color:#eef4f1}
+.cal .cell.l4{background:var(--c4)}
+.cal .cell.l4 .n,.cal .cell.l4 .v{color:#fff}
 .cal .cell.today{border-color:var(--ink)}
 .cal .cell.sel{border-color:var(--warn)}
 .cal .cell .ck{position:absolute;top:5px;right:6px;font-size:11px;color:#fff;font-weight:700}
 .cal .cell.fut{opacity:.45}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--sub);margin-top:14px;align-items:center}
 .legend i{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:5px}
+.mbar{display:flex;height:28px;border-radius:7px;overflow:hidden;gap:2px;margin-bottom:12px}
+.mbar>div{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.mbar .gap{flex:0 0 16px;box-sizing:border-box;border:1px dashed #cfcbc3;
+  background:repeating-linear-gradient(45deg,#f4f2ed,#f4f2ed 3px,#e0dcd3 3px,#e0dcd3 6px)}
+.mleg{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--sub)}
+.mleg i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-2px;margin-right:5px}
+.mleg .zero{opacity:.6}
+.mleg .zero i{outline:1px dashed #b4b0a8;outline-offset:1px}
+.mleg b{color:var(--ink);font-weight:600}
 .mnav{display:flex;align-items:center;gap:12px}
 .mnav b{font-size:16px;min-width:112px;text-align:center;font-variant-numeric:tabular-nums}
 .fsbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff8ec;border:1px solid #f0e0c0;
@@ -385,13 +395,20 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
     </h2>
     <div class="cal" id="c-grid"></div>
     <div class="legend">
-      <span><i style="background:var(--c3)"></i>계획 전부 완료</span>
-      <span><i style="background:var(--c2)"></i>절반 이상</span>
-      <span><i style="background:var(--c1)"></i>조금이라도 함</span>
-      <span><i style="background:var(--c0)"></i>기록 없음</span>
-      <span style="margin-left:auto">날짜를 누르면 그날 내용이 아래에 나옵니다</span>
+      <span><i style="background:var(--c0)"></i>0</span>
+      <span><i style="background:var(--c1)"></i>~25%</span>
+      <span><i style="background:var(--c2)"></i>~50%</span>
+      <span><i style="background:var(--c3)"></i>~75%</span>
+      <span><i style="background:var(--c4)"></i>그 이상</span>
+      <span><b>✓</b> 목표 달성</span>
+      <span style="margin-left:auto">하루 목표 시간 대비 · 목표는 설정에서 바꿉니다</span>
     </div>
   </div>
+  <div class="card">
+    <h2><span>이 달의 달성</span><small id="m-head"></small></h2>
+    <div id="m-body"></div>
+  </div>
+
   <div class="card" id="c-detail-card">
     <h2><span id="c-dtitle">날짜를 선택하세요</span><small id="c-dsum"></small></h2>
     <div id="c-detail"><div class="empty">달력에서 날짜를 눌러보세요.</div></div>
@@ -538,7 +555,7 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 
   <div class="card">
     <h2>하루 목표 시간</h2>
-    <div class="hint" style="margin:0 0 12px">통계 참고 지표입니다. 달력의 색은 <b>계획 완료율</b> 기준입니다.</div>
+    <div class="hint" style="margin:0 0 12px">달력 칸의 색이 이 목표 대비 몇 %인지로 정해집니다. 목표를 채운 날에는 ✓ 가 붙습니다.</div>
     <div style="display:flex;gap:8px;align-items:center;max-width:260px">
       <input type="number" id="g-hour" min="1" max="18" step="0.5"><span style="white-space:nowrap">시간</span>
     </div>
@@ -1370,16 +1387,17 @@ $('#c-prev').onclick = function(){ calM--; if(calM<0){calM=11;calY--;} drawCal()
 $('#c-next').onclick = function(){ calM++; if(calM>11){calM=0;calY++;} drawCal(); };
 $('#c-now').onclick  = function(){ var n=new Date(); calY=n.getFullYear(); calM=n.getMonth(); drawCal(); };
 function minutesOf(d){ return D.logs.filter(function(r){return r.date===d;}).reduce(function(s,r){return s+r.minutes;},0); }
+function goalMin(){ return (D.settings && D.settings.goalMin) || 600; }
 function levelOf(d){
-  var st=planStat(d), min=minutesOf(d);
-  if(st.n>0){
-    if(st.done===st.n) return 3;
-    if(st.ratio>=0.5)  return 2;
-    if(st.done>0||min>0) return 1;
-    return 0;
-  }
-  return min>0 ? 1 : 0;
+  var min=minutesOf(d);
+  if(min<=0) return 0;
+  var p=min/goalMin()*100;
+  if(p<=25) return 1;
+  if(p<=50) return 2;
+  if(p<=75) return 3;
+  return 4;
 }
+function goalHit(d){ return minutesOf(d) >= goalMin(); }
 function drawCal(){
   var t=today();
   $('#c-title').textContent = calY+'년 '+(calM+1)+'월';
@@ -1395,8 +1413,8 @@ function drawCal(){
   var doneDays=0, studyDays=0, totMin=0;
   for(var d=1;d<=last.getDate();d++){
     var ds=ymd(new Date(calY,calM,d));
-    var lv=levelOf(ds), min=minutesOf(ds), st=planStat(ds);
-    if(lv===3) doneDays++;
+    var lv=levelOf(ds), min=minutesOf(ds), st=planStat(ds), hit=goalHit(ds);
+    if(hit) doneDays++;
     if(min>0) studyDays++;
     totMin+=min;
     var cls='cell l'+lv;
@@ -1404,15 +1422,69 @@ function drawCal(){
     if(ds===calSel) cls+=' sel';
     if(ds>t) cls+=' fut';
     html+='<div class="'+cls+'" onclick="__pick(\''+ds+'\')">'
-      + (lv===3?'<div class="ck">✓</div>':'')
+      + (hit?'<div class="ck">✓</div>':'')
       + '<div class="n">'+d+'</div>'
       + '<div class="v">'+(min?hshort(min):'')+(st.n?'<br>'+st.done+'/'+st.n:'')+'</div></div>';
   }
   $('#c-grid').innerHTML = html;
-  $('#c-sum').textContent = '계획 완료 '+doneDays+'일 · 공부한 날 '+studyDays+'일 · 총 '+hm(totMin);
+  $('#c-sum').textContent = '목표 달성 '+doneDays+'일 · 공부한 날 '+studyDays+'일 · 총 '+hm(totMin);
+  drawMonthSum();
   drawCalDetail();
 }
 window.__pick = function(d){ calSel=d; drawCal(); };
+
+/* 이 달의 달성 — 지나간 날까지만 셈 */
+function drawMonthSum(){
+  var t=new Date();
+  var isFuture = calY>t.getFullYear() || (calY===t.getFullYear() && calM>t.getMonth());
+  var isCurrent = calY===t.getFullYear() && calM===t.getMonth();
+  var last = new Date(calY, calM+1, 0).getDate();
+  var limit = isFuture ? 0 : (isCurrent ? t.getDate() : last);
+
+  var cnt=[0,0,0,0,0], tot=0, studied=0, hit=0;
+  for(var d=1; d<=limit; d++){
+    var ds=ymd(new Date(calY,calM,d));
+    var m=minutesOf(ds);
+    cnt[levelOf(ds)]++;
+    tot+=m;
+    if(m>0) studied++;
+    if(goalHit(ds)) hit++;
+  }
+
+  if(!limit || tot<=0){
+    $('#m-head').textContent='';
+    $('#m-body').innerHTML='<div class="empty">아직 기록이 없습니다.</div>';
+    return;
+  }
+
+  var g=goalMin();
+  var LAB=['0','~25%','~50%','~75%','그 이상'];
+  var HRS=['0','~'+hshort(Math.round(g*0.25)),'~'+hshort(Math.round(g*0.5)),
+           '~'+hshort(Math.round(g*0.75)), hshort(Math.round(g*0.75))+'+'];
+  var CVAR=['var(--c0)','var(--c1)','var(--c2)','var(--c3)','var(--c4)'];
+
+  var maxUsed=0;
+  for(var i=4;i>=0;i--){ if(cnt[i]>0){ maxUsed=i; break; } }
+
+  var bar='<div class="mbar">';
+  for(var i=0;i<5;i++){
+    if(cnt[i]) bar+='<div style="flex:'+cnt[i]+';background:'+CVAR[i]+';color:'+(i>=3?'#fff':'var(--sub)')+'">'+cnt[i]+'</div>';
+    else if(i>maxUsed) bar+='<div class="gap" title="아직 없는 구간"></div>';
+  }
+  bar+='</div>';
+
+  var leg='<div class="mleg">';
+  for(var i=0;i<5;i++){
+    if(cnt[i]===0 && i<maxUsed) continue;
+    leg+='<span'+(cnt[i]===0?' class="zero"':'')+'><i style="background:'+CVAR[i]+'"></i>'
+       + LAB[i]+' <span style="color:#a9a49c">'+HRS[i]+'</span> <b>'+cnt[i]+'일</b></span>';
+  }
+  leg+='</div>';
+
+  $('#m-head').textContent = (isCurrent ? (calM+1)+'월 1일~'+limit+'일 · ' : '')
+    + '총 '+hm(tot)+' · 공부한 날 '+studied+'일 · 목표 달성 '+hit+'일';
+  $('#m-body').innerHTML = bar+leg;
+}
 function drawCalDetail(){
   if(!calSel){ $('#c-dtitle').textContent='날짜를 선택하세요';
     $('#c-dsum').textContent=''; $('#c-detail').innerHTML='<div class="empty">달력에서 날짜를 눌러보세요.</div>'; return; }
@@ -1644,7 +1716,7 @@ window.__rm = function(idx){
 $('#g-hour').onchange = function(){
   var h=parseFloat(this.value);
   if(!(h>0)){ this.value=D.settings.goalMin/60; return; }
-  D.settings.goalMin=Math.round(h*60); save(); toast('저장되었습니다');
+  D.settings.goalMin=Math.round(h*60); save(); drawCal(); toast('저장되었습니다');
 };
 
 /* ================= OneDrive 자동 저장 ================= */
