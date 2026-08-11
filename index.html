@@ -398,10 +398,15 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
           <input type="number" id="f-scoremax" min="1" step="1" placeholder="만점">
           <span class="pctbox off" id="f-score-box">—</span>
         </div>
-        <label style="display:flex;align-items:center;gap:8px;margin:9px 0 0;cursor:pointer;font-weight:500;color:var(--ink)">
-          <input type="checkbox" id="f-await" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer">
-          <span style="font-size:13px">채점 결과 기다리는 중</span>
-        </label>
+        <div style="display:flex;align-items:center;gap:12px;margin:9px 0 0;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:8px;margin:0;cursor:pointer;font-weight:500;color:var(--ink)">
+            <input type="checkbox" id="f-await" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer">
+            <span style="font-size:13px">채점 결과 기다리는 중</span>
+          </label>
+          <span style="display:flex;align-items:center;gap:5px;color:var(--sub);font-size:13px">
+            <input type="number" id="f-round" min="1" step="1" placeholder="회차" style="width:72px">회
+          </span>
+        </div>
         <div class="hint" id="f-score-pct">만점은 회차마다 달라도 됩니다. 비워두면 100점으로 봅니다.</div>
       </div>
     </div>
@@ -756,7 +761,22 @@ function autoPlan(d){
   return added;
 }
 
-/* 채점 대기 — 사례형·기록형인데 점수가 비어 있는 기록 */
+/* 그 날짜에 치르는 모의고사가 몇 회차인지 진도표에서 찾아본다 */
+function inferRound(date, group){
+  var hit=null;
+  (D.courses||[]).forEach(function(c){
+    if(hit || (group && c.group!==group)) return;
+    var rs=c.rounds||[];
+    for(var i=1;i<rs.length;i++){
+      if(rs[i].date===date){ hit={no:rs[i-1].no, course:c.name}; return; }
+    }
+    var last=rs[rs.length-1];
+    if(last && nextWeekday(last.date)===date) hit={no:last.no, course:c.name};
+  });
+  return hit;
+}
+
+/* 채점 대기 — 채점 결과를 기다리는 중으로 표시한 기록 */
 function pendingScores(){
   var from=daysAgo(120);
   return D.logs.filter(function(r){
@@ -773,6 +793,9 @@ function drawPending(){
     return '<div class="plan" style="align-items:center;gap:8px;flex-wrap:wrap">'
       + '<span style="font-size:12px;color:var(--sub);white-space:nowrap;flex:0 0 auto">'+r.date.slice(5).replace('-','/')+'</span>'
       + '<span class="tag" style="background:'+gColor(r.group)+';flex:0 0 auto">'+esc(r.group)+'</span>'
+      + (r.round!=null
+          ? '<span class="tag" style="background:var(--ink);flex:0 0 auto">'+r.round+'회</span>'
+          : '')
       + '<span class="tx" style="font-size:13px;min-width:120px">'+esc(r.type)+(r.material? ' · '+esc(r.material):'')+'</span>'
       + '<input type="number" id="ps-'+r.id+'" min="0" step="0.5" placeholder="득점" style="width:74px;flex:0 0 auto">'
       + '<span style="color:var(--sub)">/</span>'
@@ -1518,6 +1541,11 @@ $('#f-await').onchange = function(){
   if(this.checked && $('#f-score').value!==''){
     this.checked=false;
     toast('점수가 이미 들어 있습니다');
+    return;
+  }
+  if(this.checked && $('#f-round').value===''){
+    var g=inferRound($('#f-date').value||today(), cur.group);
+    if(g){ $('#f-round').value=g.no; toast('진도표에서 '+g.no+'회로 채웠습니다'); }
   }
 };
 $$('[data-add]').forEach(function(c){ c.onclick=function(){
@@ -1605,6 +1633,7 @@ $('#f-save').onclick = function(){
     minutes: min, qTotal: qt, qCorrect: qc,
     score: sc, scoreMax: smx,
     await: (sc===null && $('#f-await').checked),
+    round: ($('#f-round').value==='' ? null : +$('#f-round').value),
     memo: $('#f-memo').value.trim(), mt: now()
   };
   if(editId){
@@ -1619,7 +1648,7 @@ $('#f-cancel').onclick = function(){ editId=null; $('#f-save').textContent='기�
 function resetForm(all){
   $('#f-min').value=''; $('#f-range').value=''; $('#f-qt').value=''; $('#f-qc').value='';
   $('#f-memo').value=''; $('#f-score').value=''; $('#f-scoremax').value='';
-  $('#f-await').checked=false; calcAcc(); calcScore();
+  $('#f-await').checked=false; $('#f-round').value=''; calcAcc(); calcScore();
   $('#f-lec-from').value=''; $('#f-lec-to').value='';
   tReset(); drawLec(true);
   if(all){ $('#f-date').value=today(); drawPlan(); }
@@ -1641,7 +1670,8 @@ function edit(id){
   $('#f-qt').value=(r.qTotal==null?'':r.qTotal); $('#f-qc').value=(r.qCorrect==null?'':r.qCorrect); calcAcc();
   $('#f-score').value=(r.score==null?'':r.score);
   $('#f-scoremax').value=(r.score==null?'':(r.scoreMax||100));
-  $('#f-await').checked=!!r.await; calcScore();
+  $('#f-await').checked=!!r.await;
+  $('#f-round').value=(r.round==null?'':r.round); calcScore();
   $('#f-memo').value=r.memo||'';
   $('#f-save').textContent='수정 저장'; $('#f-cancel').classList.remove('hide');
   $$('nav button')[0].click(); drawPlan(); window.scrollTo({top:0,behavior:'smooth'});
@@ -1680,6 +1710,7 @@ function table(rows, compact){
       : '';
     var subTxt = (r.subs&&r.subs.length)? '<span class="sub-t">'+esc(r.subs.join(' · '))+'</span>' : '';
     var lec = r.lecFrom ? '<b>'+r.lecFrom+(r.lecTo&&r.lecTo!==r.lecFrom?'~'+r.lecTo:'')+'강</b>' : '';
+    if(r.round!=null) lec = '<b>'+r.round+'회</b>' + (lec? ' · '+lec : '');
     var cells=[];
     function C(label, html, style){
       var plain = String(html==null?'':html).replace(/<[^>]*>/g,'').trim();
@@ -2287,11 +2318,12 @@ function dl(name, text, mime){
 $('#x-json').onclick = function(){ dl('공부기록_백업_'+today()+'.json', JSON.stringify(D,null,2), 'application/json');
   toast('백업 파일을 내려받았습니다'); };
 $('#x-csv').onclick = function(){
-  var head=['날짜','시험유형','상위분류','세부과목','학습형태','교재/인강','들은강','진도범위','분','시간','푼문항','맞은문항','정답률','점수','만점','득점률','메모'];
+  var head=['날짜','시험유형','상위분류','세부과목','학습형태','교재/인강','회차','들은강','진도범위','분','시간','푼문항','맞은문항','정답률','점수','만점','득점률','메모'];
   function q(v){ return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'; }
   var rows=D.logs.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(r){
     var lec = r.lecFrom ? (r.lecFrom + (r.lecTo&&r.lecTo!==r.lecFrom?'~'+r.lecTo:'') + '강') : '';
-    return [r.date,r.type,r.group,(r.subs||[]).join(' · '),r.mode||'자습',r.material,lec,r.range,r.minutes,hm(r.minutes),
+    return [r.date,r.type,r.group,(r.subs||[]).join(' · '),r.mode||'자습',r.material,
+      r.round==null?'':r.round+'회', lec, r.range,r.minutes,hm(r.minutes),
       r.qTotal==null?'':r.qTotal, r.qCorrect==null?'':r.qCorrect,
       (r.qTotal>0&&r.qCorrect!=null)?Math.round(r.qCorrect/r.qTotal*1000)/10+'%':'',
       r.score==null?'':r.score, r.score==null?'':(r.scoreMax||100),
