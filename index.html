@@ -126,6 +126,10 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 .daybadge{display:inline-block;font-size:12.5px;font-weight:600;padding:3px 12px;
   border-radius:14px;white-space:nowrap;vertical-align:1px}
 .daybadge:empty{display:none}
+.pctbox{flex:0 0 auto;min-width:64px;text-align:center;font-size:13.5px;font-weight:700;
+  color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:9px 8px;
+  font-variant-numeric:tabular-nums}
+.pctbox.off{color:#b4b0a8;background:#f4f2ed;font-weight:500}
 .crow{display:grid;grid-template-columns:44px 132px 1fr 30px;gap:7px;align-items:start;margin-bottom:7px}
 .crow .no{font-size:12px;color:var(--sub);font-weight:700;padding-top:10px;text-align:center}
 .crow textarea{min-height:44px;font-size:12.5px;line-height:1.45}
@@ -270,6 +274,12 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
     <div id="late-list"></div>
   </div>
 
+  <div class="card hide" id="pend-card">
+    <h2><span>채점 대기 <small id="pend-cnt"></small></span></h2>
+    <div class="hint" style="margin:0 0 10px">사례형·기록형인데 점수가 비어 있는 기록입니다. 결과가 나오면 여기서 바로 넣으세요.</div>
+    <div id="pend-list"></div>
+  </div>
+
   <div class="card">
     <h2><span>오늘의 계획 <span id="p-subj" class="daybadge"></span> <small id="p-date"></small></span>
         <span><button class="btn sm ghost" id="p-copy">지난 계획 불러오기</button></span></h2>
@@ -369,22 +379,26 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 
     <hr>
 
-    <div class="row r4">
+    <div class="row r2">
       <div>
-        <label>푼 문항 수</label>
-        <input type="number" id="f-qt" min="0" placeholder="선택 입력">
+        <label>선택형 <small style="font-weight:400;color:var(--sub)">— 맞은 문항 / 푼 문항</small></label>
+        <div style="display:flex;gap:7px;align-items:center">
+          <input type="number" id="f-qc" min="0" step="1" placeholder="맞은">
+          <span style="color:var(--sub)">/</span>
+          <input type="number" id="f-qt" min="0" step="1" placeholder="푼">
+          <span class="pctbox off" id="f-acc-box">—</span>
+        </div>
+        <div class="hint" id="f-acc-pct">문항 수는 회차마다 달라도 됩니다.</div>
       </div>
       <div>
-        <label>맞은 문항 수</label>
-        <input type="number" id="f-qc" min="0" placeholder="선택 입력">
-      </div>
-      <div>
-        <label>정답률</label>
-        <input type="text" id="f-acc" readonly placeholder="자동 계산" style="background:#faf9f7">
-      </div>
-      <div>
-        <label>점수 <small style="font-weight:400;color:var(--sub)">— 사례형 등, 100점 만점</small></label>
-        <input type="number" id="f-score" min="0" max="100" step="0.5" placeholder="예: 72">
+        <label>사례형 · 기록형 <small style="font-weight:400;color:var(--sub)">— 득점 / 만점</small></label>
+        <div style="display:flex;gap:7px;align-items:center">
+          <input type="number" id="f-score" min="0" step="0.5" placeholder="득점">
+          <span style="color:var(--sub)">/</span>
+          <input type="number" id="f-scoremax" min="1" step="1" placeholder="만점">
+          <span class="pctbox off" id="f-score-box">—</span>
+        </div>
+        <div class="hint" id="f-score-pct">만점은 회차마다 달라도 됩니다. 비워두면 100점으로 봅니다.</div>
       </div>
     </div>
 
@@ -482,14 +496,15 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
   </div>
 
   <div class="card">
-    <h2>상위분류별 정답률 <small>문항 수를 기록한 경우만</small></h2>
+    <h2>상위분류별 정답률 <small>선택형 기준 · 문항 수를 기록한 경우만</small></h2>
     <div id="d-acc"></div>
   </div>
 
   <div class="card">
-    <h2>점수 추이 <small>사례형 등 점수를 넣은 기록 · 최근 20건</small></h2>
+    <h2><span>정답률 추이 · 사례형 / 기록형 <small>득점 ÷ 만점 · 최근 20건</small></span></h2>
+    <div class="chips" id="d-trend-type" style="margin-bottom:12px"></div>
     <div id="d-trend-score"></div>
-    <h2 style="margin-top:22px">정답률 추이 <small>문항 수를 넣은 기록 · 최근 20건</small></h2>
+    <h2 style="margin-top:22px">정답률 추이 · 선택형 <small>맞은 문항 ÷ 푼 문항 · 최근 20건</small></h2>
     <div id="d-trend-acc"></div>
   </div>
 
@@ -736,6 +751,45 @@ function autoPlan(d){
   });
   return added;
 }
+
+/* 채점 대기 — 사례형·기록형인데 점수가 비어 있는 기록 */
+function pendingScores(){
+  var from=daysAgo(90);
+  return D.logs.filter(function(r){
+    return r.score==null && r.date>=from && (r.type==='사례형' || r.type==='기록형');
+  }).sort(function(a,b){ return b.date.localeCompare(a.date); });
+}
+function drawPending(){
+  var card=$('#pend-card'); if(!card) return;
+  var list=pendingScores();
+  if(!list.length){ card.classList.add('hide'); return; }
+  card.classList.remove('hide');
+  $('#pend-cnt').textContent = list.length+'건';
+  $('#pend-list').innerHTML = list.map(function(r){
+    return '<div class="plan" style="align-items:center;gap:8px;flex-wrap:wrap">'
+      + '<span style="font-size:12px;color:var(--sub);white-space:nowrap;flex:0 0 auto">'+r.date.slice(5).replace('-','/')+'</span>'
+      + '<span class="tag" style="background:'+gColor(r.group)+';flex:0 0 auto">'+esc(r.group)+'</span>'
+      + '<span class="tx" style="font-size:13px;min-width:120px">'+esc(r.type)+(r.material? ' · '+esc(r.material):'')+'</span>'
+      + '<input type="number" id="ps-'+r.id+'" min="0" step="0.5" placeholder="득점" style="width:74px;flex:0 0 auto">'
+      + '<span style="color:var(--sub)">/</span>'
+      + '<input type="number" id="pm-'+r.id+'" min="1" step="1" placeholder="만점" style="width:74px;flex:0 0 auto">'
+      + '<button class="btn sm" onclick="__pendSave(\''+r.id+'\')" style="white-space:nowrap">저장</button>'
+      + '</div>';
+  }).join('');
+}
+window.__pendSave = function(id){
+  var a=document.getElementById('ps-'+id), b=document.getElementById('pm-'+id);
+  if(!a) return;
+  if(a.value===''){ return toast('득점을 넣어 주세요'); }
+  var mx = b.value===''? 100 : +b.value;
+  if(!(mx>0)) return toast('만점을 확인해 주세요');
+  if(+a.value>mx) return toast('득점이 만점보다 큽니다');
+  var r=null; D.logs.forEach(function(x){ if(x.id===id) r=x; });
+  if(!r) return;
+  r.score=+a.value; r.scoreMax=mx; r.mt=now();
+  save(); drawPending(); drawToday(); drawList();
+  toast('점수를 넣었습니다 · '+(Math.round(r.score/mx*1000)/10)+'%');
+};
 
 /* 밀린 진도 — 지난 진도 중 완료하지 않은 것 (최근 60일) */
 function lateItems(){
@@ -1238,7 +1292,7 @@ function drawPlan(){
   var d=$('#f-date').value || today();
   $('#p-date').textContent = d===today()? '' : '('+d+')';
   if(autoPlan(d)) save();
-  drawLate();
+  drawLate(); drawPending();
   var w=weekOf(d);
   var badge=$('#p-subj');
   badge.textContent = w.d+' · '+w.name;
@@ -1429,11 +1483,29 @@ function drawLec(autofill){
   }
 }
 
+function setBox(el, txt, on){
+  el.textContent = txt; el.classList.toggle('off', !on);
+}
 function calcAcc(){
-  var t=+$('#f-qt').value, c=+$('#f-qc').value;
-  $('#f-acc').value = (t>0 && $('#f-qc').value!=='') ? Math.round(c/t*1000)/10+'%' : '';
+  var t=$('#f-qt').value, c=$('#f-qc').value, box=$('#f-acc-box'), hint=$('#f-acc-pct');
+  if(t==='' && c===''){ setBox(box,'—',false); hint.textContent='문항 수는 회차마다 달라도 됩니다.'; return; }
+  if(!(+t>0)){ setBox(box,'—',false); hint.textContent='푼 문항 수를 넣어 주세요.'; return; }
+  if(c===''){ setBox(box,'—',false); hint.textContent='맞은 문항 수를 넣어 주세요.'; return; }
+  if(+c>+t){ setBox(box,'!',false); hint.textContent='맞은 개수가 푼 문항 수보다 많습니다.'; return; }
+  setBox(box, (Math.round(+c/+t*1000)/10)+'%', true);
+  hint.textContent='정답률';
 }
 $('#f-qt').oninput = calcAcc; $('#f-qc').oninput = calcAcc;
+function calcScore(){
+  var v=$('#f-score').value, mx=$('#f-scoremax').value, box=$('#f-score-box'), hint=$('#f-score-pct');
+  if(v===''){ setBox(box,'—',false); hint.textContent='만점은 회차마다 달라도 됩니다. 비워두면 100점으로 봅니다.'; return; }
+  var m = mx===''? 100 : +mx;
+  if(!(m>0)){ setBox(box,'—',false); hint.textContent='만점을 확인해 주세요.'; return; }
+  if(+v>m){ setBox(box,'!',false); hint.textContent='득점이 만점보다 큽니다.'; return; }
+  setBox(box, (Math.round(+v/m*1000)/10)+'%', true);
+  hint.textContent='정답률'+(mx===''? ' (만점 100 기준)':'');
+}
+$('#f-score').oninput = calcScore; $('#f-scoremax').oninput = calcScore;
 $$('[data-add]').forEach(function(c){ c.onclick=function(){
   $('#f-min').value = (+$('#f-min').value||0) + (+c.dataset.add); }; });
 
@@ -1488,7 +1560,13 @@ $('#f-save').onclick = function(){
   var qc = $('#f-qc').value===''?null:+$('#f-qc').value;
   if(qt!==null && qc!==null && qc>qt) return toast('맞은 개수가 푼 문항 수보다 많습니다');
   var sc = $('#f-score').value==='' ? null : +$('#f-score').value;
-  if(sc!==null && (sc<0 || sc>100)) return toast('점수는 0~100 사이로 넣어 주세요');
+  var smx = null;
+  if(sc!==null){
+    smx = $('#f-scoremax').value==='' ? 100 : +$('#f-scoremax').value;
+    if(!(smx>0)) return toast('만점을 확인해 주세요');
+    if(sc<0) return toast('점수를 확인해 주세요');
+    if(sc>smx) return toast('득점이 만점보다 큽니다');
+  }
   var mv=$('#f-material').value;
   var lf=null, lt=null;
   if(cur.mode==='인강' && !$('#f-lec-wrap').classList.contains('hide')){
@@ -1511,7 +1589,7 @@ $('#f-save').onclick = function(){
     range: $('#f-range').value.trim(),
     lecFrom: lf, lecTo: lt,
     minutes: min, qTotal: qt, qCorrect: qc,
-    score: ($('#f-score').value==='' ? null : +$('#f-score').value),
+    score: sc, scoreMax: smx,
     memo: $('#f-memo').value.trim(), mt: now()
   };
   if(editId){
@@ -1519,13 +1597,13 @@ $('#f-save').onclick = function(){
     D.logs[i]=rec; editId=null;
     $('#f-save').textContent='기록 저장'; $('#f-cancel').classList.add('hide'); toast('수정되었습니다');
   } else { D.logs.push(rec); toast('저장되었습니다 · '+subjLabel(rec)+' '+hm(min)); }
-  save(); resetForm(false); drawToday();
+  save(); resetForm(false); drawToday(); drawPending();
 };
 $('#f-cancel').onclick = function(){ editId=null; $('#f-save').textContent='기록 저장';
   $('#f-cancel').classList.add('hide'); resetForm(true); };
 function resetForm(all){
   $('#f-min').value=''; $('#f-range').value=''; $('#f-qt').value=''; $('#f-qc').value='';
-  $('#f-acc').value=''; $('#f-memo').value=''; $('#f-score').value='';
+  $('#f-memo').value=''; $('#f-score').value=''; $('#f-scoremax').value=''; calcAcc(); calcScore();
   $('#f-lec-from').value=''; $('#f-lec-to').value='';
   tReset(); drawLec(true);
   if(all){ $('#f-date').value=today(); drawPlan(); }
@@ -1546,6 +1624,7 @@ function edit(id){
   $('#f-range').value=r.range||''; $('#f-min').value=r.minutes;
   $('#f-qt').value=(r.qTotal==null?'':r.qTotal); $('#f-qc').value=(r.qCorrect==null?'':r.qCorrect); calcAcc();
   $('#f-score').value=(r.score==null?'':r.score);
+  $('#f-scoremax').value=(r.score==null?'':(r.scoreMax||100)); calcScore();
   $('#f-memo').value=r.memo||'';
   $('#f-save').textContent='수정 저장'; $('#f-cancel').classList.remove('hide');
   $$('nav button')[0].click(); drawPlan(); window.scrollTo({top:0,behavior:'smooth'});
@@ -1559,6 +1638,11 @@ function del(id){
 window.__edit=edit; window.__del=del;
 
 function subjLabel(r){ return (r.subs&&r.subs.length)? r.subs.join(' · ') : r.group; }
+function scorePct(r){
+  if(r.score==null) return null;
+  var m=r.scoreMax||100;
+  return m>0 ? Math.round(r.score/m*1000)/10 : null;
+}
 
 function drawToday(){
   var t=today();
@@ -1568,13 +1652,15 @@ function drawToday(){
   $('#today-list').innerHTML = rows.length? table(rows,true) : '<div class="empty">아직 오늘 기록이 없습니다.</div>';
 }
 function table(rows, compact){
-  var cols = (compact?[]:['날짜']).concat(['과목','유형','형태','교재 / 인강','진도','시간','정답률','점수','메모','']);
+  var cols = (compact?[]:['날짜']).concat(['과목','유형','형태','교재 / 인강','진도','시간','선택형','사례·기록','메모','']);
   var head = '<div class="tw"><table><thead><tr>'
     + cols.map(function(c){ return '<th>'+c+'</th>'; }).join('')
     + '</tr></thead><tbody>';
   var body = rows.map(function(r){
-    var acc = (r.qTotal>0 && r.qCorrect!=null) ? Math.round(r.qCorrect/r.qTotal*1000)/10+'%' : '';
-    var q   = r.qTotal ? '<span style="color:var(--sub);font-size:11.5px"> ('+(r.qCorrect==null?'-':r.qCorrect)+'/'+r.qTotal+')</span>' : '';
+    var accHtml = (r.qTotal>0 && r.qCorrect!=null)
+      ? '<b>'+r.qCorrect+'</b><span style="color:var(--sub)"> / '+r.qTotal+'</span>'
+        + '<span style="color:var(--sub);font-size:11.5px"> ('+(Math.round(r.qCorrect/r.qTotal*1000)/10)+'%)</span>'
+      : '';
     var subTxt = (r.subs&&r.subs.length)? '<span class="sub-t">'+esc(r.subs.join(' · '))+'</span>' : '';
     var lec = r.lecFrom ? '<b>'+r.lecFrom+(r.lecTo&&r.lecTo!==r.lecFrom?'~'+r.lecTo:'')+'강</b>' : '';
     var cells=[];
@@ -1590,8 +1676,12 @@ function table(rows, compact){
     C('교재', r.material?esc(r.material):'');
     C('진도', lec + (lec&&r.range?' ':'') + '<span style="color:var(--sub)">'+esc(r.range)+'</span>', 'font-size:12.5px');
     C('시간', hm(r.minutes), 'white-space:nowrap;font-weight:600');
-    C('정답률', acc+q, 'white-space:nowrap');
-    C('점수', (r.score!=null? '<b>'+r.score+'점</b>' : ''), 'white-space:nowrap');
+    C('선택형', accHtml, 'white-space:nowrap');
+    var sp=scorePct(r);
+    C('사례·기록', (r.score!=null
+        ? '<b>'+r.score+'</b><span style="color:var(--sub)"> / '+(r.scoreMax||100)+'</span>'
+          + '<span style="color:var(--sub);font-size:11.5px"> ('+sp+'%)</span>'
+        : ''), 'white-space:nowrap');
     C('메모', esc(r.memo), 'color:var(--sub);font-size:12.5px;max-width:220px');
     cells.push('<td data-l="" style="white-space:nowrap">'
       + '<button class="btn sm ghost" onclick="__edit(\''+r.id+'\')">수정</button> '
@@ -1750,6 +1840,12 @@ function bars(map, colorFn){
       + (colorFn?colorFn(e[0]):'var(--accent)')+'"></div></div></div>';
   }).join('');
 }
+var trendType='전체';
+$('#d-trend-type').onclick = function(e){
+  var c=e.target.closest('.chip'); if(!c) return;
+  trendType=c.dataset.v; drawDash();
+};
+
 function drawWeekReview(){
   var el=$('#wr-body'); if(!el) return;
   var ws=weekStart(), t=today();
@@ -1873,8 +1969,14 @@ function drawDash(){
   $('#d-mat').innerHTML = bars(mm, keyColor);
 
   /* 점수·정답률 추이 */
-  drawTrend('#d-trend-score', D.logs.filter(function(r){ return r.score!=null; }),
-            function(r){ return r.score; }, '점', '점수를 넣은 기록이 없습니다.');
+  var scored=D.logs.filter(function(r){ return r.score!=null; });
+  var tset=[]; scored.forEach(function(r){ if(tset.indexOf(r.type)===-1) tset.push(r.type); });
+  $('#d-trend-type').innerHTML = tset.length>1
+    ? ['전체'].concat(tset).map(function(t){
+        return '<div class="chip'+(t===trendType?' on':'')+'" data-v="'+esc(t)+'">'+esc(t)+'</div>'; }).join('')
+    : '';
+  var sc2 = (trendType==='전체') ? scored : scored.filter(function(r){ return r.type===trendType; });
+  drawTrend('#d-trend-score', sc2, scorePct, '%', '점수를 넣은 기록이 없습니다.');
   drawTrend('#d-trend-acc', D.logs.filter(function(r){ return r.qTotal>0 && r.qCorrect!=null; }),
             function(r){ return Math.round(r.qCorrect/r.qTotal*1000)/10; }, '%', '문항 수를 넣은 기록이 없습니다.');
 
@@ -2168,14 +2270,15 @@ function dl(name, text, mime){
 $('#x-json').onclick = function(){ dl('공부기록_백업_'+today()+'.json', JSON.stringify(D,null,2), 'application/json');
   toast('백업 파일을 내려받았습니다'); };
 $('#x-csv').onclick = function(){
-  var head=['날짜','시험유형','상위분류','세부과목','학습형태','교재/인강','들은강','진도범위','분','시간','푼문항','맞은문항','정답률','점수','메모'];
+  var head=['날짜','시험유형','상위분류','세부과목','학습형태','교재/인강','들은강','진도범위','분','시간','푼문항','맞은문항','정답률','점수','만점','득점률','메모'];
   function q(v){ return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'; }
   var rows=D.logs.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(r){
     var lec = r.lecFrom ? (r.lecFrom + (r.lecTo&&r.lecTo!==r.lecFrom?'~'+r.lecTo:'') + '강') : '';
     return [r.date,r.type,r.group,(r.subs||[]).join(' · '),r.mode||'자습',r.material,lec,r.range,r.minutes,hm(r.minutes),
       r.qTotal==null?'':r.qTotal, r.qCorrect==null?'':r.qCorrect,
       (r.qTotal>0&&r.qCorrect!=null)?Math.round(r.qCorrect/r.qTotal*1000)/10+'%':'',
-      r.score==null?'':r.score, r.memo].map(q).join(',');
+      r.score==null?'':r.score, r.score==null?'':(r.scoreMax||100),
+      r.score==null?'':(scorePct(r)+'%'), r.memo].map(q).join(',');
   });
   dl('공부기록_'+today()+'.csv', '﻿'+[head.map(q).join(',')].concat(rows).join('\r\n'), 'text/csv;charset=utf-8');
   toast('CSV를 내려받았습니다');
