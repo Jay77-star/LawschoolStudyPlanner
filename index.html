@@ -276,7 +276,7 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 
   <div class="card hide" id="pend-card">
     <h2><span>채점 대기 <small id="pend-cnt"></small></span></h2>
-    <div class="hint" style="margin:0 0 10px">사례형·기록형인데 점수가 비어 있는 기록입니다. 결과가 나오면 여기서 바로 넣으세요.</div>
+    <div class="hint" style="margin:0 0 10px">기록할 때 <b>채점 결과 기다리는 중</b>에 체크한 것들입니다. 결과가 나오면 여기서 바로 넣으세요.</div>
     <div id="pend-list"></div>
   </div>
 
@@ -398,6 +398,10 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
           <input type="number" id="f-scoremax" min="1" step="1" placeholder="만점">
           <span class="pctbox off" id="f-score-box">—</span>
         </div>
+        <label style="display:flex;align-items:center;gap:8px;margin:9px 0 0;cursor:pointer;font-weight:500;color:var(--ink)">
+          <input type="checkbox" id="f-await" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer">
+          <span style="font-size:13px">채점 결과 기다리는 중</span>
+        </label>
         <div class="hint" id="f-score-pct">만점은 회차마다 달라도 됩니다. 비워두면 100점으로 봅니다.</div>
       </div>
     </div>
@@ -754,9 +758,9 @@ function autoPlan(d){
 
 /* 채점 대기 — 사례형·기록형인데 점수가 비어 있는 기록 */
 function pendingScores(){
-  var from=daysAgo(90);
+  var from=daysAgo(120);
   return D.logs.filter(function(r){
-    return r.score==null && r.date>=from && (r.type==='사례형' || r.type==='기록형');
+    return r.await && r.score==null && r.date>=from;
   }).sort(function(a,b){ return b.date.localeCompare(a.date); });
 }
 function drawPending(){
@@ -786,7 +790,7 @@ window.__pendSave = function(id){
   if(+a.value>mx) return toast('득점이 만점보다 큽니다');
   var r=null; D.logs.forEach(function(x){ if(x.id===id) r=x; });
   if(!r) return;
-  r.score=+a.value; r.scoreMax=mx; r.mt=now();
+  r.score=+a.value; r.scoreMax=mx; r.await=false; r.mt=now();
   save(); drawPending(); drawToday(); drawList();
   toast('점수를 넣었습니다 · '+(Math.round(r.score/mx*1000)/10)+'%');
 };
@@ -1505,7 +1509,17 @@ function calcScore(){
   setBox(box, (Math.round(+v/m*1000)/10)+'%', true);
   hint.textContent='정답률'+(mx===''? ' (만점 100 기준)':'');
 }
-$('#f-score').oninput = calcScore; $('#f-scoremax').oninput = calcScore;
+$('#f-score').oninput = function(){
+  if(this.value!=='') $('#f-await').checked=false;
+  calcScore();
+};
+$('#f-scoremax').oninput = calcScore;
+$('#f-await').onchange = function(){
+  if(this.checked && $('#f-score').value!==''){
+    this.checked=false;
+    toast('점수가 이미 들어 있습니다');
+  }
+};
 $$('[data-add]').forEach(function(c){ c.onclick=function(){
   $('#f-min').value = (+$('#f-min').value||0) + (+c.dataset.add); }; });
 
@@ -1590,6 +1604,7 @@ $('#f-save').onclick = function(){
     lecFrom: lf, lecTo: lt,
     minutes: min, qTotal: qt, qCorrect: qc,
     score: sc, scoreMax: smx,
+    await: (sc===null && $('#f-await').checked),
     memo: $('#f-memo').value.trim(), mt: now()
   };
   if(editId){
@@ -1603,7 +1618,8 @@ $('#f-cancel').onclick = function(){ editId=null; $('#f-save').textContent='기�
   $('#f-cancel').classList.add('hide'); resetForm(true); };
 function resetForm(all){
   $('#f-min').value=''; $('#f-range').value=''; $('#f-qt').value=''; $('#f-qc').value='';
-  $('#f-memo').value=''; $('#f-score').value=''; $('#f-scoremax').value=''; calcAcc(); calcScore();
+  $('#f-memo').value=''; $('#f-score').value=''; $('#f-scoremax').value='';
+  $('#f-await').checked=false; calcAcc(); calcScore();
   $('#f-lec-from').value=''; $('#f-lec-to').value='';
   tReset(); drawLec(true);
   if(all){ $('#f-date').value=today(); drawPlan(); }
@@ -1624,7 +1640,8 @@ function edit(id){
   $('#f-range').value=r.range||''; $('#f-min').value=r.minutes;
   $('#f-qt').value=(r.qTotal==null?'':r.qTotal); $('#f-qc').value=(r.qCorrect==null?'':r.qCorrect); calcAcc();
   $('#f-score').value=(r.score==null?'':r.score);
-  $('#f-scoremax').value=(r.score==null?'':(r.scoreMax||100)); calcScore();
+  $('#f-scoremax').value=(r.score==null?'':(r.scoreMax||100));
+  $('#f-await').checked=!!r.await; calcScore();
   $('#f-memo').value=r.memo||'';
   $('#f-save').textContent='수정 저장'; $('#f-cancel').classList.remove('hide');
   $$('nav button')[0].click(); drawPlan(); window.scrollTo({top:0,behavior:'smooth'});
