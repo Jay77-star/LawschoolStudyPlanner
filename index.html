@@ -842,10 +842,18 @@ window.__pendSave = function(id){
 function lateItems(){
   var t=today(), out=[];
   var from=daysAgo(60);
+  /* 오늘로 옮겨둔 이월본의 id 모음.
+     원본을 지우는 대신 "이월본이 있으면 원본을 숨기는" 방식이라,
+     이월본을 실수로 지우면 이 목록에서 빠지고 원본이 다시 밀린 진도에 나타난다. */
+  var carried={};
+  Object.keys(D.plans||{}).forEach(function(d){
+    (D.plans[d]||[]).forEach(function(p){ if(p && p.from) carried[p.id]=1; });
+  });
   (D.courses||[]).forEach(function(c){
     var rs=c.rounds||[];
     function chk(date, id, text){
       if(!date || date>=t || date<from) return;
+      if(carried[id+'-c']) return;                                 /* 오늘로 옮겨둠 */
       var arr=D.plans[date]||[];
       var it=null;
       for(var i=0;i<arr.length;i++) if(arr[i].id===id) it=arr[i];
@@ -924,13 +932,8 @@ function carryToToday(x){
   if(D.plans[d].some(function(y){ return y && y.id===id; })) return false;
   D.plans[d].push({id:id, text:'(밀림 '+from.slice(5)+') '+base,
                    done:false, mt:now(), auto:true, from:from, grp:x.group});
-
-  /* 원본은 원래 날짜에서 빼고 삭제 기록을 남긴다 → 밀린 진도에서 바로 사라진다 */
-  if(!x.carried){
-    var a=D.plans[x.date]||[];
-    D.plans[x.date]=a.filter(function(y){ return !(y && y.id===x.id); });
-    kill('plan:'+x.date+':'+x.id);
-  }
+  /* 원본은 원래 날짜에 그대로 둔다. 지우지 않는 이유는 lateItems() 주석 참고 —
+     이월본을 실수로 지워도 원본이 살아 있어야 밀린 진도로 되돌아온다. */
   return true;
 }
 window.__lateOne = function(i){
@@ -1414,10 +1417,12 @@ window.__ptoggle = function(id){
 };
 window.__pdel = function(id){
   var d=$('#f-date').value||today();
+  var it=null; (D.plans[d]||[]).forEach(function(x){ if(x.id===id) it=x; });
   kill('plan:'+d+':'+id);
   D.plans[d]=(D.plans[d]||[]).filter(function(x){return x.id!==id;});
   if(!D.plans[d].length) delete D.plans[d];
   save(); drawPlan();
+  if(it && it.from) toast('밀린 진도로 되돌렸습니다');
 };
 $('#p-copy').onclick = function(){
   var d=$('#f-date').value||today();
