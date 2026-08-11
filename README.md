@@ -5,7 +5,7 @@
 
 - **주소**: https://jay77-star.github.io/LawschoolStudyPlanner/
 - **구성**: `index.html` 단일 파일 (약 2,540줄 / 124KB). 외부 라이브러리·빌드·서버 없음
-- **저장**: 브라우저 `localStorage`가 원본. GitHub 비공개 Gist로 맥 ↔ 아이폰 동기화
+- **저장**: 브라우저 `localStorage`가 원본. GitHub 미공개(secret) Gist로 맥 ↔ 아이폰 동기화
 
 > 맥에 두는 사본은 `L공부기록.html`, 저장소에 올릴 때는 반드시 **`index.html`** 로 바꾼다.
 
@@ -172,7 +172,9 @@ D = {
 
 ### 동기화 병합 규칙
 
-GitHub 비공개 Gist(`lawstudy-data.json`)에 저장한다. gist id는 파일명으로 자동 탐색하고, 없으면 만든다. 저장 후 2.5초 디바운스로 올리고, 앱 전환에서 돌아올 때도 동기화한다.
+GitHub 미공개(secret) Gist(`lawstudy-data.json`)에 저장한다. gist id는 파일명으로 자동 탐색하고, 없으면 만든다. 저장 후 2.5초 디바운스로 올리고, 앱 전환에서 돌아올 때도 동기화한다.
+
+> **"미공개"는 "비공개"가 아니다.** GitHub의 secret gist(`public:false`)는 검색·목록에 안 뜰 뿐, **URL을 아는 사람은 로그인 없이 볼 수 있다.** 이 앱 코드도 `fetch(f.raw_url)`을 토큰 없이 호출해서 읽는다 — 그게 가능하다는 증거다. gist id가 32자리 hex라 우연히 맞힐 일은 사실상 없지만, 그 URL을 어디에 붙여넣지는 말 것.
 
 두 기기에서 따로 입력해도 사라지지 않도록 `mergeDoc`이 항목 단위로 합친다:
 
@@ -185,6 +187,14 @@ GitHub 비공개 Gist(`lawstudy-data.json`)에 저장한다. gist id는 파일�
 ### 백업
 
 설정 → 백업·내보내기에서 `.json`(전체 복원용)과 `.csv`(엑셀용)를 받을 수 있다. 큰 작업 전에는 json을 받아두는 게 좋다.
+백업 파일은 `D`만 담고 `lawstudy.cfg`는 안 담는다 — **백업에 토큰은 들어가지 않는다.**
+
+### 토큰 관리
+
+- 권한은 **`gist` 하나뿐**이다. 이 토큰으로는 저장소 코드도, 계정 설정도 건드릴 수 없다. 다만 **내 gist 전체**는 읽고 쓰고 지울 수 있다
+- 만료 없음으로 발급해서 스스로 폐기되지 않는다. 토큰은 `lawstudy.cfg`(각 기기 localStorage)에만 있고 동기화·백업·저장소 어디에도 안 들어간다
+- **절대 하지 말 것** — 토큰 값을 이 README나 코드, 이슈, 채팅에 붙여넣기. 저장소에 올리는 건 `index.html` 하나뿐이고 거기엔 토큰이 없다
+- **샜다고 의심되면** GitHub → Settings → Developer settings → Tokens (classic)에서 해당 토큰 Delete → 새로 발급 → 맥·아이폰에서 각각 다시 입력. 2분이면 된다
 
 ---
 
