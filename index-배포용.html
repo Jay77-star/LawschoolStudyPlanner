@@ -279,18 +279,6 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 
 <!-- ============ 기록하기 ============ -->
 <section id="tab-log">
-  <div class="card hide" id="late-card">
-    <h2><span>밀린 진도 <small id="late-cnt"></small></span>
-        <span><button class="btn sm ghost" id="late-all">전부 오늘로</button></span></h2>
-    <div id="late-list"></div>
-  </div>
-
-  <div class="card hide" id="pend-card">
-    <h2><span>채점 대기 <small id="pend-cnt"></small></span></h2>
-    <div class="hint" style="margin:0 0 10px">기록할 때 <b>채점 결과 기다리는 중</b>에 체크한 것들입니다. 결과가 나오면 여기서 바로 넣으세요.</div>
-    <div id="pend-list"></div>
-  </div>
-
   <div class="card">
     <h2><span>오늘의 계획 <span id="p-subj" class="daybadge"></span> <small id="p-date"></small></span>
         <span><button class="btn sm ghost" id="p-copy">지난 계획 불러오기</button></span></h2>
@@ -301,6 +289,19 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
     <div id="p-list"></div>
     <div class="pbar"><div id="p-bar" style="width:0%"></div></div>
     <div class="hint" id="p-msg"></div>
+  </div>
+
+  <div class="card hide" id="late-card">
+    <h2><span>밀린 진도 <small id="late-cnt"></small></span>
+        <span><button class="btn sm ghost hide" id="late-more">펼쳐 보기</button>
+              <button class="btn sm ghost" id="late-all">전부 오늘로</button></span></h2>
+    <div id="late-list"></div>
+  </div>
+
+  <div class="card hide" id="pend-card">
+    <h2><span>채점 대기 <small id="pend-cnt"></small></span></h2>
+    <div class="hint" style="margin:0 0 10px">기록할 때 <b>채점 결과 기다리는 중</b>에 체크한 것들입니다. 결과가 나오면 여기서 바로 넣으세요.</div>
+    <div id="pend-list"></div>
   </div>
 
   <div class="card">
@@ -862,16 +863,38 @@ function lateItems(){
     if(last) chk(nextWeekday(last.date), 'a-'+c.id+'-e'+last.no,
       '['+c.group+'] '+last.no+'회 모의고사 — 누적 1~'+last.no+'회 · '+(c.exam||'선택형 · 사례형'));
   });
+  /* 오늘로 가져왔는데 그날도 못 한 것 — 다시 밀린 것으로 잡는다 */
+  Object.keys(D.plans||{}).forEach(function(d){
+    if(d>=t || d<from) return;
+    (D.plans[d]||[]).forEach(function(p){
+      if(!p || p.done || !p.from) return;
+      out.push({date:p.from, id:p.id, text:p.text, group:p.grp||'', carried:true});
+    });
+  });
   out.sort(function(a,b){ return a.date.localeCompare(b.date); });
   return out;
 }
+/* 5건 이상이면 접어둔다 — 열자마자 목록이 벽처럼 보이지 않도록.
+   펼친 상태는 일부러 저장하지 않는다(새로고침하면 다시 접힌다). */
+var LATE_FOLD_AT = 5;
+var lateOpen = false;
+
 function drawLate(){
   var card=$('#late-card'); if(!card) return;
   var list=lateItems();
-  if(!list.length){ card.classList.add('hide'); return; }
+  if(!list.length){ card.classList.add('hide'); lateOpen=false; return; }
   card.classList.remove('hide');
   var t=today();
-  $('#late-cnt').textContent = list.length+'건';
+
+  var fold = list.length>=LATE_FOLD_AT, open = !fold || lateOpen;
+  var oldest = list[0] ? dayDiff(list[0].date, t) : 0;
+  $('#late-cnt').textContent = list.length+'건'
+    + ((fold && !open && oldest) ? ' · 가장 오래된 것 '+oldest+'일 지남' : '');
+  $('#late-more').textContent = open ? '접기' : '펼쳐 보기';
+  $('#late-more').classList.toggle('hide', !fold);
+  $('#late-all').classList.toggle('hide', fold && !open);
+  if(!open){ $('#late-list').innerHTML=''; return; }
+
   $('#late-list').innerHTML = list.map(function(x,i){
     var gap=dayDiff(x.date, t);
     return '<div class="plan" style="align-items:center">'
@@ -883,10 +906,31 @@ function drawLate(){
   }).join('');
 }
 function carryToToday(x){
-  var d=today(), id=x.id+'-c';
+  var d=today();
+  var id   = x.carried ? x.id : x.id+'-c';   /* 이미 이월한 것은 같은 id로 다시 옮긴다 */
+  var from = x.date;                          /* 원래 예정일 (이월본도 x.date에 원래 날짜가 들어 있다) */
+  var base = String(x.text||'').replace(/^\(밀림 \d{2}-\d{2}\)\s*/, '');
+
+  /* 다른 날짜에 남아 있는 같은 항목을 걷어낸다 (두 군데 생기지 않도록) */
+  Object.keys(D.plans||{}).forEach(function(k){
+    if(k===d) return;
+    var arr=D.plans[k]||[];
+    if(!arr.some(function(y){ return y && y.id===id; })) return;
+    D.plans[k]=arr.filter(function(y){ return !(y && y.id===id); });
+    kill('plan:'+k+':'+id);
+  });
+
   D.plans[d]=D.plans[d]||[];
-  if(D.plans[d].some(function(y){ return y.id===id; })) return false;
-  D.plans[d].push({id:id, text:'(밀림 '+x.date.slice(5)+') '+x.text, done:false, mt:now(), auto:true});
+  if(D.plans[d].some(function(y){ return y && y.id===id; })) return false;
+  D.plans[d].push({id:id, text:'(밀림 '+from.slice(5)+') '+base,
+                   done:false, mt:now(), auto:true, from:from, grp:x.group});
+
+  /* 원본은 원래 날짜에서 빼고 삭제 기록을 남긴다 → 밀린 진도에서 바로 사라진다 */
+  if(!x.carried){
+    var a=D.plans[x.date]||[];
+    D.plans[x.date]=a.filter(function(y){ return !(y && y.id===x.id); });
+    kill('plan:'+x.date+':'+x.id);
+  }
   return true;
 }
 window.__lateOne = function(i){
@@ -894,6 +938,7 @@ window.__lateOne = function(i){
   if(carryToToday(x)){ save(); drawPlan(); drawLate(); toast('오늘 계획으로 옮겼습니다'); }
   else toast('이미 오늘 계획에 있습니다');
 };
+$('#late-more').onclick = function(){ lateOpen = !lateOpen; drawLate(); };
 $('#late-all').onclick = function(){
   var list=lateItems();
   if(!list.length) return;
