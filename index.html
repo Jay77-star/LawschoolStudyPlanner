@@ -118,10 +118,11 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 .plan.done .tx{color:#a9a49c;text-decoration:line-through}
 .plan .x{border:0;background:transparent;color:#c5c1b8;cursor:pointer;font-size:16px;padding:0 4px}
 .plan .x:hover{color:var(--warn)}
-.pend-row{align-items:center;gap:8px;flex-wrap:wrap}
-.pend-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.pend-ctrl{display:flex;align-items:center;gap:8px}
-.pend-ctrl input{width:74px;flex:0 0 auto}
+.pend-row{align-items:center;gap:8px;flex-wrap:nowrap}
+.pend-row>*{flex:0 0 auto}
+.pend-row .pend-t{flex:1 1 0;min-width:0;font-size:13px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pend-row input{width:74px}
 .pbar{height:7px;background:#eeece7;border-radius:4px;overflow:hidden;margin-top:10px}
 .pbar div{height:100%;background:var(--accent);border-radius:4px;transition:width .3s}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
@@ -227,6 +228,12 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
   .days{height:110px}
   .toast{bottom:calc(24px + env(safe-area-inset-bottom))}
   .card h2{font-size:14px}
+
+  /* 채점 대기: 좁은 화면에서도 한 줄에 들어가게 */
+  .pend-row{gap:6px}
+  .pend-row .pend-d{display:none}
+  .pend-row input{width:68px;padding:8px}
+  .pend-row .btn.sm{padding:5px 9px}
 
   /* 표를 한 건씩 카드로 펼쳐서 읽기 쉽게 */
   .tw{overflow-x:visible}
@@ -781,6 +788,13 @@ function inferRound(date, group){
 }
 
 /* 채점 대기 — 채점 결과를 기다리는 중으로 표시한 기록 */
+/* 좁은 화면에서 한 줄에 들어가도록 시험유형 이름을 줄임 (표시만, 저장값은 그대로) */
+var TYPE_ABBR = { '진도별모의고사':'진모', '전범위모의고사':'전모', '진도별 모의고사':'진모', '전범위 모의고사':'전모' };
+function shortType(t){
+  t = String(t==null? '' : t);
+  if(TYPE_ABBR[t]) return TYPE_ABBR[t];
+  return t.length>6 ? t.slice(0,5)+'…' : t;
+}
 function pendingScores(){
   var from=daysAgo(120);
   return D.logs.filter(function(r){
@@ -795,20 +809,17 @@ function drawPending(){
   $('#pend-cnt').textContent = list.length+'건';
   $('#pend-list').innerHTML = list.map(function(r){
     return '<div class="plan pend-row">'
-      + '<div class="pend-meta">'
-      + '<span style="font-size:12px;color:var(--sub);white-space:nowrap;flex:0 0 auto">'+r.date.slice(5).replace('-','/')+'</span>'
-      + '<span class="tag" style="background:'+gColor(r.group)+';flex:0 0 auto">'+esc(r.group)+'</span>'
+      + '<span class="pend-d" style="font-size:12px;color:var(--sub);white-space:nowrap">'+r.date.slice(5).replace('-','/')+'</span>'
+      + '<span class="tag" style="background:'+gColor(r.group)+'">'+esc(r.group)+'</span>'
       + (r.round!=null
-          ? '<span class="tag" style="background:var(--ink);flex:0 0 auto">'+r.round+'회</span>'
+          ? '<span class="tag" style="background:var(--ink)">'+r.round+'회</span>'
           : '')
-      + '<span class="tx" style="font-size:13px;min-width:120px">'+esc(r.type)+(r.material? ' · '+esc(r.material):'')+'</span>'
-      + '</div>'
-      + '<div class="pend-ctrl">'
+      + '<span class="pend-t" title="'+esc(r.type)+(r.material? ' · '+esc(r.material):'')+'">'
+      +   esc(shortType(r.type))+(r.material? ' · '+esc(r.material):'')+'</span>'
       + '<input type="number" id="ps-'+r.id+'" min="0" step="0.5" placeholder="득점">'
-      + '<span style="color:var(--sub);flex:0 0 auto">/</span>'
+      + '<span style="color:var(--sub)">/</span>'
       + '<input type="number" id="pm-'+r.id+'" min="1" step="1" placeholder="만점">'
-      + '<button class="btn sm" onclick="__pendSave(\''+r.id+'\')" style="white-space:nowrap;flex:0 0 auto">저장</button>'
-      + '</div>'
+      + '<button class="btn sm" onclick="__pendSave(\''+r.id+'\')" style="white-space:nowrap">저장</button>'
       + '</div>';
   }).join('');
 }
