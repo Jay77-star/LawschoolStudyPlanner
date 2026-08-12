@@ -103,6 +103,12 @@ input[type=date]{max-width:100%;min-width:0;-webkit-appearance:none;appearance:n
 .btn.danger{background:#fff;border:1px solid var(--line);color:var(--warn)}
 .timer{display:flex;align-items:center;gap:12px;background:var(--accent-soft);border-radius:10px;padding:12px 16px}
 .tdisp{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em;min-width:112px;color:var(--accent)}
+.twhat{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:12.5px;color:var(--sub)}
+.twhat.on{color:var(--ink)}
+.twhat .dotr{width:7px;height:7px;border-radius:50%;background:var(--warn);flex:0 0 auto;
+  animation:tblink 1.6s infinite}
+@keyframes tblink{0%,100%{opacity:1}50%{opacity:.25}}
+.twhat .warn{color:var(--warn)}
 .stat{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 @media(max-width:760px){.stat{grid-template-columns:1fr 1fr}}
 .stat div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 17px}
@@ -404,6 +410,7 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
           <button class="btn sm" id="t-start">시작</button>
           <button class="btn sm ghost" id="t-reset">초기화</button>
         </div>
+        <div class="twhat" id="t-what"></div>
         <div class="hint">스톱워치를 멈추면 오른쪽 칸에 자동으로 채워집니다.</div>
       </div>
       <div>
@@ -560,6 +567,12 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
   <div class="card">
     <h2>시간대별 집중 <small id="fz-cov"></small></h2>
     <div id="fz-body"></div>
+    <div class="chips" id="fz-key" style="margin-top:14px">
+      <div class="chip on" data-v="group">과목</div>
+      <div class="chip" data-v="type">시험유형</div>
+      <div class="chip" data-v="mode">학습형태</div>
+    </div>
+    <div id="fz-grid"></div>
   </div>
 
   <div class="row r2">
@@ -1559,18 +1572,19 @@ $('#f-group').onclick = function(e){
 function drawSubs(){
   var sp=typeSpec(cur.type);
   var subs = (sp.sub && cur.group) ? GROUPS[cur.group] : [];
-  if(!subs || !subs.length){ $('#f-sub-wrap').classList.add('hide'); $('#f-sub').innerHTML=''; return; }
+  if(!subs || !subs.length){ $('#f-sub-wrap').classList.add('hide'); $('#f-sub').innerHTML=''; tWhat(); return; }
   $('#f-sub-wrap').classList.remove('hide');
   $('#f-sub').innerHTML = subs.map(function(s){
     var on=cur.subs.indexOf(s)!==-1;
     return '<div class="chip sub'+(on?' on':'')+'" data-v="'+s+'" style="'+chipStyle(subColor(s),on)+'">'+s+'</div>';
   }).join('');
+  tWhat();
 }
 $('#f-sub').onclick = function(e){
   var c=e.target.closest('.chip'); if(!c) return;
   var v=c.dataset.v, i=cur.subs.indexOf(v);
   if(i===-1) cur.subs.push(v); else cur.subs.splice(i,1);
-  drawSubs();
+  drawSubs(); tWhat();
 };
 
 $('#f-mode').onclick = function(e){
@@ -1578,7 +1592,7 @@ $('#f-mode').onclick = function(e){
   cur.mode=c.dataset.v;
   $$('#f-mode .chip').forEach(function(x){ x.classList.toggle('on',x.dataset.v===cur.mode); });
   $('#f-mat-label').textContent = cur.mode==='인강' ? '수강한 인강' : '교재';
-  drawTypes(); drawMaterials();
+  drawTypes(); drawMaterials(); tWhat();
 };
 
 function bank(){ return cur.mode==='인강' ? 'lectures' : 'books'; }
@@ -1728,6 +1742,27 @@ function tSanity(){
   if(confirm('스톱워치가 '+h+'시간째 돌아가고 있습니다.\n계속 재고 계신 게 맞나요?\n\n[확인] 계속 잰다   [취소] 정지하고 이 시간을 버린다')) return;
   tReset();
 }
+/* 지금 무엇을 재고 있는지 — 위쪽 폼 선택을 그대로 비춘다 */
+function curLabel(){
+  if(!cur.group) return '';
+  return esc(cur.group)
+    + (cur.subs && cur.subs.length ? ' · '+esc(cur.subs.join(' · ')) : '')
+    + (cur.type ? ' · '+esc(cur.type) : '')
+    + ' · ' + esc(cur.mode||'자습');
+}
+function tWhat(){
+  var el=$('#t-what'); if(!el) return;
+  var lab=curLabel();
+  el.classList.toggle('on', tRun);
+  if(!lab){
+    el.innerHTML = tRun
+      ? '<span class="dotr"></span><span class="warn">과목을 아직 안 골랐습니다 — 위에서 골라 주세요</span>'
+      : '<span style="opacity:.7">위에서 과목·유형을 고르면 여기에 표시됩니다</span>';
+    return;
+  }
+  el.innerHTML = (tRun ? '<span class="dotr"></span><b style="font-weight:600">재는 중</b> · ' : '<b style="font-weight:600">다음 기록</b> · ')
+    + lab;
+}
 function tShow(){
   var sec=tSecNow();
   var h=String(Math.floor(sec/3600)); while(h.length<2) h='0'+h;
@@ -1735,6 +1770,7 @@ function tShow(){
   var s=String(sec%60); while(s.length<2) s='0'+s;
   var el=$('#t-disp'); if(el) el.textContent = h+':'+m+':'+s;
   var b=$('#t-start'); if(b) b.textContent = tRun ? '정지' : (tAcc>0 ? '계속' : '시작');
+  tWhat();
 }
 function tGo(){
   tRun=true; tStart=Date.now();
@@ -1751,7 +1787,8 @@ function tStop(fill){
   if(fill && tAcc>0){
     var mins=Math.max(1, Math.round(tAcc/60));
     $('#f-min').value=mins;
-    toast(hm(mins)+' 기록됨');
+    /* 무엇을 잰 시간인지 같이 알려준다 — 과목을 잘못 둔 채 저장하는 실수를 막는다 */
+    toast(hm(mins)+' 기록됨' + (cur.group ? ' · '+cur.group+(cur.type? ' '+shortType(cur.type):'') : ' · 과목을 골라 주세요'));
   }
 }
 function tReset(){
@@ -2248,40 +2285,59 @@ function focusByZone(rows){
 /* 과목 × 시간대 — 같은 과목을 시간만 바꿔 비교하는 것이 핵심.
    요일별로 과목이 정해져 있어 하루 세 블록을 같은 과목으로 채우는 날이 많다. */
 var GZ_MIN_MIN = 20;        /* 이보다 짧은 칸은 표본이 없다고 본다 */
+var gzKey = 'group';        /* group | type | mode */
+function gzValue(r){
+  return gzKey==='type' ? (r.type||'') : gzKey==='mode' ? (r.mode||'자습') : (r.group||'');
+}
 function focusByGroupZone(rows){
   var cell={}, gt={}, cache={};
   rows.forEach(function(r){
     if(!(r.focus>=1 && r.focus<=5)) return;
     var segs=segsOf(r); if(!segs.length) return;
+    var key=gzValue(r); if(!key) return;
     var bl=cache[r.date]||(cache[r.date]=blocksOfDate(r.date));
     segs.forEach(function(s){
       segParts(s, bl).forEach(function(p){
         var len=(p.off-p.on)/60000;
-        var c=cell[r.group+'|'+p.zone]||(cell[r.group+'|'+p.zone]={min:0,wsum:0});
+        var c=cell[key+'|'+p.zone]||(cell[key+'|'+p.zone]={min:0,wsum:0});
         c.min+=len; c.wsum+=r.focus*len;
-        var g=gt[r.group]||(gt[r.group]={min:0,wsum:0});
+        var g=gt[key]||(gt[key]={min:0,wsum:0});
         g.min+=len; g.wsum+=r.focus*len;
       });
     });
   });
   return {cell:cell, gt:gt};
 }
+/* 행 순서 — 과목은 정해진 순서, 나머지는 시간이 많은 순 */
+function gzRows(gt){
+  var keys=Object.keys(gt).filter(function(k){ return gt[k].min>=GZ_MIN_MIN; });
+  if(gzKey==='group') return GROUP_ORDER.filter(function(g){ return keys.indexOf(g)!==-1; });
+  if(gzKey==='mode')  return ['자습','인강'].filter(function(m){ return keys.indexOf(m)!==-1; });
+  return keys.sort(function(a,b){ return gt[b].min-gt[a].min; });
+}
 function fLevel(v){                       /* 달력과 같은 5단계 색을 재사용 */
   if(v>=4.5) return 4; if(v>=3.5) return 3; if(v>=2.5) return 2; if(v>=1.5) return 1; return 0;
 }
 function drawGroupZone(rows, zoneOrder){
+  var el=$('#fz-grid'); if(!el) return;
   var r=focusByGroupZone(rows);
-  var groups=GROUP_ORDER.filter(function(g){ return r.gt[g] && r.gt[g].min>=GZ_MIN_MIN; });
-  if(!groups.length || zoneOrder.length<2) return '';
+  var groups=gzRows(r.gt);
+  if(!groups.length || zoneOrder.length<2){
+    el.innerHTML='<div class="hint" style="margin-top:10px">집중도를 함께 기록한 자료가 더 모이면 여기에 표가 생깁니다.</div>';
+    return;
+  }
   var cols='72px repeat('+zoneOrder.length+',minmax(0,1fr)) 46px';
-  var h='<div style="font-size:12.5px;color:var(--sub);font-weight:600;margin:18px 0 8px">'
-      + '과목 × 시간대 <span style="font-weight:400">— 같은 과목을 시간만 바꿔 비교</span></div>'
+  var label = gzKey==='type' ? '시험유형' : gzKey==='mode' ? '학습형태' : '과목';
+  var h='<div style="font-size:12.5px;color:var(--sub);font-weight:600;margin:14px 0 8px">'
+      + esc(label)+' × 시간대 <span style="font-weight:400">— 같은 조건에서 시간만 바꿔 비교</span></div>'
       + '<div class="gz" style="grid-template-columns:'+cols+'">'
       + '<div></div>' + zoneOrder.map(function(z){ return '<div class="hd">'+z+'</div>'; }).join('')
       + '<div class="hd">전체</div>';
   var best=null;
   groups.forEach(function(g){
-    h += '<div class="lb"><span class="tag" style="background:'+gColor(g)+'">'+esc(g)+'</span></div>';
+    h += '<div class="lb">' + (gzKey==='group'
+        ? '<span class="tag" style="background:'+gColor(g)+'">'+esc(g)+'</span>'
+        : esc(shortType(g))) + '</div>';
     var vals=[];
     zoneOrder.forEach(function(z){
       var c=r.cell[g+'|'+z];
@@ -2305,8 +2361,14 @@ function drawGroupZone(rows, zoneOrder){
     h += '<div class="hint" style="margin-top:10px"><b>'+esc(best.g)+'</b>은(는) 시간대를 가장 많이 탑니다 — '
        + best.hi.z+' <b>'+best.hi.v+'</b> vs '+best.lo.z+' <b>'+best.lo.v+'</b>. '
        + '가능하면 '+best.hi.z+'에 배치해 보세요.</div>';
-  return h;
+  el.innerHTML=h;
 }
+$('#fz-key').onclick = function(e){
+  var c=e.target.closest('.chip'); if(!c) return;
+  gzKey=c.dataset.v;
+  $$('#fz-key .chip').forEach(function(x){ x.classList.toggle('on', x.dataset.v===gzKey); });
+  drawDash();
+};
 
 function drawFocusZones(rows){
   var el=$('#fz-body'); if(!el) return;
@@ -2348,10 +2410,10 @@ function drawFocusZones(rows){
     if(bv>wv) h += '<div class="hint" style="margin-top:12px"><b>'+bi+'</b>이(가) 가장 잘 붙습니다 ('+bv+'점). '
       + '<b>'+wo+'</b>은(는) '+wv+'점으로 가장 낮습니다.</div>';
   }
-  h += drawGroupZone(rows, order);
   if(res.withSeg < 8)
     h += '<div class="hint" style="margin-top:8px">아직 표본이 적습니다. 2~3주쯤 쌓여야 패턴이라고 볼 수 있습니다.</div>';
   el.innerHTML=h;
+  drawGroupZone(rows, order);
 }
 
 /* CSV용 — 그 기록이 어느 시간대에 걸쳤는지, 첫 시작·마지막 종료 시각 */
