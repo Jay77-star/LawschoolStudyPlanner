@@ -67,6 +67,35 @@ input[type=date]{max-width:100%;min-width:0;-webkit-appearance:none;appearance:n
 .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 .chip.sub{border-style:dashed}
 .chip.sub.on{border-style:solid}
+.focus-scale{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.focus-chip{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 5px;cursor:pointer;
+  text-align:center;color:var(--sub);transition:.12s;min-width:0}
+.focus-chip:hover{border-color:var(--accent)}
+.focus-chip b{display:block;color:var(--ink);font-size:16px;line-height:1.1;margin-bottom:3px}
+.focus-chip span{display:block;font-size:11px;white-space:nowrap}
+.focus-chip.on{background:var(--accent-soft);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.focus-chip.on b,.focus-chip.on span{color:var(--accent);font-weight:700}
+@media(max-width:420px){
+  .focus-scale{gap:5px}
+  .focus-chip{padding:8px 2px}
+  .focus-chip b{font-size:15px}
+  .focus-chip span{font-size:10px;letter-spacing:-.04em}
+}
+.pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);
+  border-radius:18px;padding:5px 8px 5px 13px;font-size:13px;margin:0 6px 6px 0}
+.zrow{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.zrow:last-child{border-bottom:0}
+.zrow .zn{font-size:13px;font-weight:600}
+.zrow .zb{height:9px;background:#eeece7;border-radius:5px;overflow:hidden}
+.zrow .zb div{height:100%;border-radius:5px;background:var(--accent)}
+.zmeta{font-size:11.5px;color:var(--sub);margin-top:3px;display:flex;gap:12px;flex-wrap:wrap}
+.gz{display:grid;gap:4px;align-items:center}
+.gz .hd{font-size:11.5px;color:var(--sub);text-align:center;font-weight:600}
+.gz .lb{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gz .cl{border-radius:6px;padding:7px 2px;text-align:center;font-size:13px;font-weight:700;
+  font-variant-numeric:tabular-nums}
+.gz .cl small{display:block;font-size:10px;font-weight:400;opacity:.75}
+.gz .cl.na{background:#f4f2ed;color:#bdb9b1;font-weight:400}
 .btn{padding:10px 18px;border:0;border-radius:8px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
 .btn:hover{filter:brightness(1.1)}
 .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:500}
@@ -423,6 +452,33 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
       </div>
     </div>
 
+    <hr>
+
+    <div style="margin-bottom:16px">
+      <label>집중도 <small style="font-weight:400;color:var(--sub)">— 선택사항 · 실제 공부가 얼마나 잘 붙었는지</small></label>
+      <div class="focus-scale" id="f-focus">
+        <button type="button" class="focus-chip" data-v="1"><b>1</b><span>매우 낮음</span></button>
+        <button type="button" class="focus-chip" data-v="2"><b>2</b><span>낮음</span></button>
+        <button type="button" class="focus-chip" data-v="3"><b>3</b><span>보통</span></button>
+        <button type="button" class="focus-chip" data-v="4"><b>4</b><span>좋음</span></button>
+        <button type="button" class="focus-chip" data-v="5"><b>5</b><span>몰입</span></button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:18px">
+      <label>집중을 방해한 것 <small style="font-weight:400;color:var(--sub)">— 선택사항 · 복수 선택 가능</small></label>
+      <div class="chips" id="f-dist">
+        <div class="chip" data-v="휴대폰">휴대폰</div>
+        <div class="chip" data-v="딴생각">딴생각</div>
+        <div class="chip" data-v="졸림·피로">졸림·피로</div>
+        <div class="chip" data-v="멍함">멍함</div>
+        <div class="chip" data-v="내용 어려움">내용 어려움</div>
+        <div class="chip" data-v="불안·스트레스">불안·스트레스</div>
+        <div class="chip" data-v="주변 환경">주변 환경</div>
+        <div class="chip" data-v="기타">기타</div>
+      </div>
+    </div>
+
     <div style="margin-bottom:18px">
       <label>메모</label>
       <textarea id="f-memo" placeholder="예: 행정심판 부분 약함 / 다음에 판례 정리 필요"></textarea>
@@ -499,6 +555,11 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
   <div class="card">
     <h2>일별 공부 시간 <small id="d-days-label">최근 14일</small></h2>
     <div class="days" id="d-days"></div>
+  </div>
+
+  <div class="card">
+    <h2>시간대별 집중 <small id="fz-cov"></small></h2>
+    <div id="fz-body"></div>
   </div>
 
   <div class="row r2">
@@ -1437,6 +1498,22 @@ $('#p-copy').onclick = function(){
 /* ================= 기록 폼 ================= */
 var cur = { type:'선택형', group:'', subs:[], mode:'자습' };
 var editId = null;
+/* 집중도(1~5)·방해요인·수정 중인 기록의 원래 구간 */
+var focusVal = null, distVals = [], editSegs = null;
+function drawFocusInput(){
+  $$('#f-focus .focus-chip').forEach(function(x){ x.classList.toggle('on', +x.dataset.v===focusVal); });
+  $$('#f-dist .chip').forEach(function(x){ x.classList.toggle('on', distVals.indexOf(x.dataset.v)!==-1); });
+}
+$('#f-focus').onclick = function(e){
+  var b=e.target.closest('.focus-chip'); if(!b) return;
+  var v=+b.dataset.v; focusVal=(focusVal===v ? null : v); drawFocusInput();
+};
+$('#f-dist').onclick = function(e){
+  var c=e.target.closest('.chip'); if(!c) return;
+  var v=c.dataset.v, i=distVals.indexOf(v);
+  if(i===-1) distVals.push(v); else distVals.splice(i,1);
+  drawFocusInput();
+};
 
 $('#f-date').value = today();
 $('#f-date').onchange = drawPlan;
@@ -1623,13 +1700,33 @@ $$('[data-add]').forEach(function(c){ c.onclick=function(){
 /* 스톱워치 — 화면을 잠그거나 앱을 나가도 실제 흐른 시간으로 계산 */
 var TKEY='lawstudy.timer';
 var tRun=false, tAcc=0, tStart=0, tId=null;
+/* tSegs: 실제로 돌아간 구간 [{on,off}] — 시간대별 집중 분석의 원천 데이터.
+   일시정지할 때마다 구간이 닫히므로, 구간 사이 공백이 곧 쉰 시간이다. */
+var tSegs=[];
 function tSecNow(){ return tAcc + (tRun ? Math.max(0, Math.floor((Date.now()-tStart)/1000)) : 0); }
-function tSave(){ try{ localStorage.setItem(TKEY, JSON.stringify({run:tRun, acc:tAcc, start:tStart})); }catch(e){} }
+function tSave(){ try{ localStorage.setItem(TKEY, JSON.stringify({run:tRun, acc:tAcc, start:tStart, segs:tSegs})); }catch(e){} }
 function tLoad(){
   try{
     var o=JSON.parse(localStorage.getItem(TKEY));
-    if(o){ tRun=!!o.run; tAcc=o.acc||0; tStart=o.start||Date.now(); }
+    if(o){ tRun=!!o.run; tAcc=o.acc||0; tStart=o.start||Date.now();
+           tSegs=Array.isArray(o.segs)? o.segs : []; }
   }catch(e){}
+}
+/* 저장에 쓸 구간 목록 — 열린 구간은 지금 시각으로 닫아서 넘긴다 */
+function tSegsNow(){
+  var out=tSegs.filter(function(s){ return s && s.on && s.off && s.off>s.on; })
+               .map(function(s){ return {on:s.on, off:s.off}; });
+  if(tRun && tStart) out.push({on:tStart, off:Date.now()});
+  return out;
+}
+/* 끄는 걸 잊고 한참 뒤에 연 경우 — 시간대 통계가 통째로 오염되므로 확인한다 */
+function tSanity(){
+  if(!tRun) return;
+  var sec=tSecNow();
+  if(sec < 6*3600) return;
+  var h=Math.floor(sec/3600);
+  if(confirm('스톱워치가 '+h+'시간째 돌아가고 있습니다.\n계속 재고 계신 게 맞나요?\n\n[확인] 계속 잰다   [취소] 정지하고 이 시간을 버린다')) return;
+  tReset();
 }
 function tShow(){
   var sec=tSecNow();
@@ -1645,7 +1742,10 @@ function tGo(){
   tSave(); tShow();
 }
 function tStop(fill){
-  if(tRun){ tAcc=tSecNow(); tRun=false; }
+  if(tRun){
+    if(tStart && Date.now()>tStart) tSegs.push({on:tStart, off:Date.now()});   /* 구간을 닫는다 */
+    tAcc=tSecNow(); tRun=false;
+  }
   clearInterval(tId); tId=null;
   tSave(); tShow();
   if(fill && tAcc>0){
@@ -1655,7 +1755,7 @@ function tStop(fill){
   }
 }
 function tReset(){
-  tRun=false; tAcc=0; tStart=0;
+  tRun=false; tAcc=0; tStart=0; tSegs=[];
   clearInterval(tId); tId=null;
   tSave(); tShow();
 }
@@ -1703,6 +1803,8 @@ $('#f-save').onclick = function(){
     score: sc, scoreMax: smx,
     await: (sc===null && $('#f-await').checked),
     round: ($('#f-round').value==='' ? null : +$('#f-round').value),
+    focus: focusVal, distractions: distVals.slice(),
+    segs: editId ? (editSegs||[]) : tSegsNow(),
     memo: $('#f-memo').value.trim(), mt: now()
   };
   if(editId){
@@ -1716,6 +1818,7 @@ $('#f-cancel').onclick = function(){ editId=null; $('#f-save').textContent='기�
   $('#f-cancel').classList.add('hide'); resetForm(true); };
 function resetForm(all){
   $('#f-min').value=''; $('#f-range').value=''; $('#f-qt').value=''; $('#f-qc').value='';
+  focusVal=null; distVals=[]; editSegs=null; drawFocusInput();
   $('#f-memo').value=''; $('#f-score').value=''; $('#f-scoremax').value='';
   $('#f-await').checked=false; $('#f-round').value=''; calcAcc(); calcScore();
   $('#f-lec-from').value=''; $('#f-lec-to').value='';
@@ -1741,6 +1844,10 @@ function edit(id){
   $('#f-scoremax').value=(r.score==null?'':(r.scoreMax||100));
   $('#f-await').checked=!!r.await;
   $('#f-round').value=(r.round==null?'':r.round); calcScore();
+  focusVal=(r.focus>=1&&r.focus<=5)?+r.focus:null;
+  distVals=Array.isArray(r.distractions)?r.distractions.slice():[];
+  editSegs=Array.isArray(r.segs)?r.segs.slice():[];   /* 수정해도 원래 시각은 보존 */
+  drawFocusInput();
   $('#f-memo').value=r.memo||'';
   $('#f-save').textContent='수정 저장'; $('#f-cancel').classList.remove('hide');
   $$('nav button')[0].click(); drawPlan(); window.scrollTo({top:0,behavior:'smooth'});
@@ -2037,6 +2144,231 @@ function drawTrend(sel, rows, valOf, unit, emptyMsg){
   el.innerHTML=h;
 }
 
+/* ================= 시간대별 집중 =================
+   원리: 스톱워치를 화장실까지 엄격히 일시정지하므로, 구간 사이 공백이 곧 쉰 시간이다.
+   40분 이상 벌어지면 식사·외출로 보고 블록을 나누고, 블록 중간 시각으로 시간대를 정한다.
+   고정 시각으로 자르지 않는 이유 — 식사가 ±1시간 유동적이라 경계가 매일 달라진다. */
+var ZGAP_MIN  = 40;            /* 이 이상 공백이면 다른 블록 */
+var ZBOUND    = [6, 13.5, 18.5];   /* 새벽|오전|오후|저녁 경계 (블록 중간 시각 기준) */
+var ZNAMES    = ['새벽','오전','오후','저녁'];
+var ZLONG_HR  = 6;             /* 한 블록이 이보다 길면 경계에서 쪼갠다 */
+
+function segsOf(r){
+  return (Array.isArray(r.segs)?r.segs:[])
+    .filter(function(s){ return s && s.on && s.off && s.off>s.on; });
+}
+function hourOf(ts){ var d=new Date(ts); return d.getHours()+d.getMinutes()/60; }
+function zoneOfHour(h){
+  if(h < ZBOUND[0]) return '새벽';
+  if(h < ZBOUND[1]) return '오전';
+  if(h < ZBOUND[2]) return '오후';
+  return '저녁';
+}
+/* 하루치 구간을 공백 기준으로 블록화하고 각 블록에 시간대를 붙인다 */
+function blocksOfDate(date){
+  var segs=[];
+  D.logs.forEach(function(r){
+    if(r.date!==date) return;
+    segsOf(r).forEach(function(s){ segs.push(s); });
+  });
+  segs.sort(function(a,b){ return a.on-b.on; });
+  var blocks=[], cur=null;
+  segs.forEach(function(s){
+    if(cur && (s.on-cur.end) < ZGAP_MIN*60000){
+      cur.end=Math.max(cur.end, s.off); cur.n++;
+    } else {
+      cur={start:s.on, end:s.off, n:1}; blocks.push(cur);
+    }
+  });
+  blocks.forEach(function(b){
+    var tooLong = (b.end-b.start) > ZLONG_HR*3600000;
+    var crossDay = new Date(b.start).getDate() !== new Date(b.end).getDate();
+    b.zone = (tooLong || crossDay)
+      ? null                                        /* 시계 경계에서 쪼개서 따로 판정 */
+      : zoneOfHour(hourOf((b.start+b.end)/2));
+  });
+  return blocks;
+}
+/* 구간을 시간대 단위로 쪼갠다.
+   블록에 시간대가 정해져 있으면 통째로 그 시간대(식사가 밀려도 블록을 따라감).
+   블록이 너무 길어 판정을 못 했으면 시계 경계에서 잘라 나눈다. */
+function segParts(s, blocks){
+  var mid=(s.on+s.off)/2, b=null;
+  for(var i=0;i<blocks.length;i++)
+    if(mid>=blocks[i].start && mid<=blocks[i].end){ b=blocks[i]; break; }
+  if(b && b.zone) return [{zone:b.zone, on:s.on, off:s.off}];
+  var out=[], cur=s.on, guard=0;
+  while(cur < s.off && guard++ < 48){
+    var d=new Date(cur), hh=d.getHours()+d.getMinutes()/60, nb=null;
+    for(var k=0;k<ZBOUND.length;k++) if(ZBOUND[k]>hh){ nb=ZBOUND[k]; break; }
+    var edge=new Date(cur);
+    if(nb==null) edge.setHours(24,0,0,0);
+    else edge.setHours(Math.floor(nb), Math.round((nb%1)*60), 0, 0);
+    var end=Math.min(s.off, edge.getTime());
+    if(end<=cur) break;
+    out.push({zone:zoneOfHour(hh), on:cur, off:end});
+    cur=end;
+  }
+  return out.length? out : [{zone:zoneOfHour(hourOf(mid)), on:s.on, off:s.off}];
+}
+function zoneOfSeg(s, blocks){ return segParts(s, blocks)[0].zone; }
+/* 시간대별 집계. 그 시간대에 기록이 없는 날은 세지 않는다(0점으로 잡으면 안 됨). */
+function focusByZone(rows){
+  var z={}, withSeg=0, cache={}, all=[];
+  /* 기록을 나눠 적어도(민법→민소법) 같은 블록의 끊김을 이어서 세려면
+     전체 구간을 한 줄로 세워놓고 시각순으로 훑어야 한다. */
+  rows.forEach(function(r){
+    var segs=segsOf(r); if(!segs.length) return;
+    withSeg++;
+    var bl = cache[r.date] || (cache[r.date]=blocksOfDate(r.date));
+    segs.forEach(function(s){
+      segParts(s, bl).forEach(function(p){
+        all.push({zone:p.zone, on:p.on, off:p.off, date:r.date,
+                  focus:r.focus, dist:r.distractions||[]});
+      });
+    });
+  });
+  all.sort(function(a,b){ return a.on-b.on; });
+  var prev={};
+  all.forEach(function(p){
+    var len=(p.off-p.on)/60000;
+    var o=z[p.zone]||(z[p.zone]={min:0, segs:0, breaks:0, wsum:0, wmin:0, dist:{}, days:{}});
+    o.min+=len; o.segs++; o.days[p.date]=1;
+    var key=p.date+'|'+p.zone;
+    if(prev[key]!=null){
+      var gap=(p.on-prev[key])/60000;
+      if(gap>0 && gap<ZGAP_MIN) o.breaks++;      /* 같은 블록 안에서 끊긴 횟수 */
+    }
+    prev[key]=p.off;
+    if(p.focus>=1 && p.focus<=5){ o.wsum+=p.focus*len; o.wmin+=len; }
+    p.dist.forEach(function(d){ o.dist[d]=(o.dist[d]||0)+1; });
+  });
+  return {zones:z, withSeg:withSeg, total:rows.length};
+}
+/* 과목 × 시간대 — 같은 과목을 시간만 바꿔 비교하는 것이 핵심.
+   요일별로 과목이 정해져 있어 하루 세 블록을 같은 과목으로 채우는 날이 많다. */
+var GZ_MIN_MIN = 20;        /* 이보다 짧은 칸은 표본이 없다고 본다 */
+function focusByGroupZone(rows){
+  var cell={}, gt={}, cache={};
+  rows.forEach(function(r){
+    if(!(r.focus>=1 && r.focus<=5)) return;
+    var segs=segsOf(r); if(!segs.length) return;
+    var bl=cache[r.date]||(cache[r.date]=blocksOfDate(r.date));
+    segs.forEach(function(s){
+      segParts(s, bl).forEach(function(p){
+        var len=(p.off-p.on)/60000;
+        var c=cell[r.group+'|'+p.zone]||(cell[r.group+'|'+p.zone]={min:0,wsum:0});
+        c.min+=len; c.wsum+=r.focus*len;
+        var g=gt[r.group]||(gt[r.group]={min:0,wsum:0});
+        g.min+=len; g.wsum+=r.focus*len;
+      });
+    });
+  });
+  return {cell:cell, gt:gt};
+}
+function fLevel(v){                       /* 달력과 같은 5단계 색을 재사용 */
+  if(v>=4.5) return 4; if(v>=3.5) return 3; if(v>=2.5) return 2; if(v>=1.5) return 1; return 0;
+}
+function drawGroupZone(rows, zoneOrder){
+  var r=focusByGroupZone(rows);
+  var groups=GROUP_ORDER.filter(function(g){ return r.gt[g] && r.gt[g].min>=GZ_MIN_MIN; });
+  if(!groups.length || zoneOrder.length<2) return '';
+  var cols='72px repeat('+zoneOrder.length+',minmax(0,1fr)) 46px';
+  var h='<div style="font-size:12.5px;color:var(--sub);font-weight:600;margin:18px 0 8px">'
+      + '과목 × 시간대 <span style="font-weight:400">— 같은 과목을 시간만 바꿔 비교</span></div>'
+      + '<div class="gz" style="grid-template-columns:'+cols+'">'
+      + '<div></div>' + zoneOrder.map(function(z){ return '<div class="hd">'+z+'</div>'; }).join('')
+      + '<div class="hd">전체</div>';
+  var best=null;
+  groups.forEach(function(g){
+    h += '<div class="lb"><span class="tag" style="background:'+gColor(g)+'">'+esc(g)+'</span></div>';
+    var vals=[];
+    zoneOrder.forEach(function(z){
+      var c=r.cell[g+'|'+z];
+      if(!c || c.min<GZ_MIN_MIN){ h+='<div class="cl na">·</div>'; return; }
+      var v=Math.round(c.wsum/c.min*10)/10; vals.push({z:z, v:v});
+      var lv=fLevel(v);
+      h += '<div class="cl" style="background:var(--c'+lv+');color:'+(lv>=3?'#fff':'var(--ink)')+'">'
+         + v + '<small>'+hshort(Math.round(c.min))+'</small></div>';
+    });
+    var gv=Math.round(r.gt[g].wsum/r.gt[g].min*10)/10;
+    h += '<div class="cl" style="background:#f4f2ed">'+gv+'</div>';
+    if(vals.length>=2){
+      vals.sort(function(a,b){ return b.v-a.v; });
+      var spread=vals[0].v-vals[vals.length-1].v;
+      if(!best || spread>best.spread)
+        best={g:g, spread:spread, hi:vals[0], lo:vals[vals.length-1]};
+    }
+  });
+  h += '</div>';
+  if(best && best.spread>=1)
+    h += '<div class="hint" style="margin-top:10px"><b>'+esc(best.g)+'</b>은(는) 시간대를 가장 많이 탑니다 — '
+       + best.hi.z+' <b>'+best.hi.v+'</b> vs '+best.lo.z+' <b>'+best.lo.v+'</b>. '
+       + '가능하면 '+best.hi.z+'에 배치해 보세요.</div>';
+  return h;
+}
+
+function drawFocusZones(rows){
+  var el=$('#fz-body'); if(!el) return;
+  var res=focusByZone(rows), z=res.zones;
+  var order=ZNAMES.filter(function(n){ return z[n]; });
+  $('#fz-cov').textContent = res.withSeg
+    ? '스톱워치로 기록된 '+res.withSeg+'건 / 전체 '+res.total+'건'
+    : '';
+  if(!order.length){
+    el.innerHTML='<div class="empty">스톱워치로 기록하면 시간대별 집중 패턴이 여기에 모입니다.<br>'
+      + '<span style="font-size:12px">시작·정지 시각을 자동으로 남기므로 따로 입력할 것은 없습니다.</span></div>';
+    return;
+  }
+  var maxMin=Math.max.apply(null, order.map(function(n){ return z[n].min; }));
+  var h='';
+  order.forEach(function(n){
+    var o=z[n];
+    var avg = o.wmin ? Math.round(o.wsum/o.wmin*10)/10 : null;
+    var runLen = o.segs ? Math.round(o.min/o.segs) : 0;
+    var days = Object.keys(o.days).length;
+    var top = Object.keys(o.dist).sort(function(a,b){ return o.dist[b]-o.dist[a]; })[0];
+    h += '<div class="zrow"><div class="zn">'+n
+      + '<div style="font-weight:400;color:var(--sub);font-size:11px">'+days+'일</div></div>'
+      + '<div><div class="zb"><div style="width:'+(maxMin? o.min/maxMin*100:0)+'%"></div></div>'
+      + '<div class="zmeta">'
+      +   '<span>'+hshort(Math.round(o.min))+'</span>'
+      +   (avg!=null? '<span>집중도 <b style="color:var(--ink)">'+avg+'</b> / 5</span>' : '<span style="opacity:.6">집중도 미기록</span>')
+      +   '<span>한 번에 <b style="color:var(--ink)">'+runLen+'분</b></span>'
+      +   (o.breaks? '<span>끊김 '+o.breaks+'회</span>' : '')
+      +   (top? '<span>주 방해 '+esc(top)+'</span>' : '')
+      + '</div></div></div>';
+  });
+
+  var rated=order.filter(function(n){ return z[n].wmin; });
+  if(rated.length>=2){
+    var best=rated.slice().sort(function(a,b){ return (z[b].wsum/z[b].wmin)-(z[a].wsum/z[a].wmin); });
+    var bi=best[0], wo=best[best.length-1];
+    var bv=Math.round(z[bi].wsum/z[bi].wmin*10)/10, wv=Math.round(z[wo].wsum/z[wo].wmin*10)/10;
+    if(bv>wv) h += '<div class="hint" style="margin-top:12px"><b>'+bi+'</b>이(가) 가장 잘 붙습니다 ('+bv+'점). '
+      + '<b>'+wo+'</b>은(는) '+wv+'점으로 가장 낮습니다.</div>';
+  }
+  h += drawGroupZone(rows, order);
+  if(res.withSeg < 8)
+    h += '<div class="hint" style="margin-top:8px">아직 표본이 적습니다. 2~3주쯤 쌓여야 패턴이라고 볼 수 있습니다.</div>';
+  el.innerHTML=h;
+}
+
+/* CSV용 — 그 기록이 어느 시간대에 걸쳤는지, 첫 시작·마지막 종료 시각 */
+function csvZone(r){
+  var segs=segsOf(r); if(!segs.length) return '';
+  var bl=blocksOfDate(r.date), seen={};
+  segs.forEach(function(s){ seen[zoneOfSeg(s,bl)]=1; });
+  return ZNAMES.filter(function(n){ return seen[n]; }).join(' · ');
+}
+function csvClock(r, k){
+  var segs=segsOf(r); if(!segs.length) return '';
+  var ts = k==='on' ? Math.min.apply(null, segs.map(function(s){return s.on;}))
+                    : Math.max.apply(null, segs.map(function(s){return s.off;}));
+  var d=new Date(ts), p=function(n){ return (n<10?'0':'')+n; };
+  return p(d.getHours())+':'+p(d.getMinutes());
+}
+
 function drawDash(){
   drawWeekReview();
   var t=today(), ws=weekStart(), ms=monthStart();
@@ -2064,6 +2396,7 @@ function drawDash(){
   }).join('');
 
   var rows=inPeriod();
+  drawFocusZones(rows);
 
   var gm={}; rows.forEach(function(r){ gm[r.group]=(gm[r.group]||0)+r.minutes; });
   $('#d-group').innerHTML = bars(gm, gColor);
@@ -2387,7 +2720,7 @@ function dl(name, text, mime){
 $('#x-json').onclick = function(){ dl('공부기록_백업_'+today()+'.json', JSON.stringify(D,null,2), 'application/json');
   toast('백업 파일을 내려받았습니다'); };
 $('#x-csv').onclick = function(){
-  var head=['날짜','시험유형','상위분류','세부과목','학습형태','교재/인강','회차','들은강','진도범위','분','시간','푼문항','맞은문항','정답률','점수','만점','득점률','메모'];
+  var head=['날짜','시험유형','상위분류','세부과목','학습형태','교재/인강','회차','들은강','진도범위','분','시간','푼문항','맞은문항','정답률','점수','만점','득점률','집중도','방해요인','시간대','시작','종료','메모'];
   function q(v){ return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'; }
   var rows=D.logs.slice().sort(function(a,b){return a.date.localeCompare(b.date);}).map(function(r){
     var lec = r.lecFrom ? (r.lecFrom + (r.lecTo&&r.lecTo!==r.lecFrom?'~'+r.lecTo:'') + '강') : '';
@@ -2396,7 +2729,10 @@ $('#x-csv').onclick = function(){
       r.qTotal==null?'':r.qTotal, r.qCorrect==null?'':r.qCorrect,
       (r.qTotal>0&&r.qCorrect!=null)?Math.round(r.qCorrect/r.qTotal*1000)/10+'%':'',
       r.score==null?'':r.score, r.score==null?'':(r.scoreMax||100),
-      r.score==null?'':(scorePct(r)+'%'), r.memo].map(q).join(',');
+      r.score==null?'':(scorePct(r)+'%'),
+      r.focus==null?'':r.focus, (r.distractions||[]).join(' · '),
+      csvZone(r), csvClock(r,'on'), csvClock(r,'off'),
+      r.memo].map(q).join(',');
   });
   dl('공부기록_'+today()+'.csv', '﻿'+[head.map(q).join(',')].concat(rows).join('\r\n'), 'text/csv;charset=utf-8');
   toast('CSV를 내려받았습니다');
@@ -2570,7 +2906,7 @@ function redrawAll(){
   drawToday(); drawCal(); drawList(); drawNotes(); drawMat(); drawData(); drawCloud();
   $('#g-hour').value=D.settings.goalMin/60;
 }
-tLoad(); tShow();
+tLoad(); tSanity(); tShow(); drawFocusInput();
 if(tRun){ clearInterval(tId); tId=setInterval(tShow,1000); }
 redrawAll(); renderFs();
 if(dedupeRemoved){ dedupeRemoved=false; save(); toast('중복된 항목을 정리했습니다'); }
