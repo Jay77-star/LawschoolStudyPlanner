@@ -1087,7 +1087,38 @@ function drawCourses(){
       + '</div></details>';
   }).join('');
 }
-function csTouch(c){ c.mt=now(); save(); }
+/* 진도표 날짜를 바꾸면 옛 날짜에 넣어둔 자동 항목이 남는다.
+   현재 진도표와 어긋난 자동 항목을 걷어낸다.
+   완료했거나 밀린 진도에서 이월한 항목, 직접 적은 항목은 건드리지 않는다.
+   진도표를 지운 경우에는 대응하는 회차를 찾을 수 없으므로 그대로 둔다. */
+function pruneAutoPlans(){
+  var want={};
+  (D.courses||[]).forEach(function(c){
+    var rs=(c.rounds||[]).slice().sort(function(a,b){ return a.no-b.no; });
+    rs.forEach(function(r,i){
+      want['a-'+c.id+'-t'+r.no] = r.date;
+      if(rs[i-1]) want['a-'+c.id+'-e'+rs[i-1].no] = r.date;
+    });
+    var last=rs[rs.length-1];
+    if(last) want['a-'+c.id+'-e'+last.no] = nextWeekday(last.date);
+  });
+  var n=0;
+  Object.keys(D.plans||{}).forEach(function(d){
+    var arr=D.plans[d]||[];
+    var out=arr.filter(function(p){
+      if(!p || p.done || p.from) return true;
+      var w=want[p.id];
+      if(w===undefined || w===d) return true;
+      kill('plan:'+d+':'+p.id);      /* 동기화로 되살아나지 않게 */
+      n++;
+      return false;
+    });
+    if(out.length===arr.length) return;
+    if(out.length) D.plans[d]=out; else delete D.plans[d];
+  });
+  return n;
+}
+function csTouch(c){ c.mt=now(); pruneAutoPlans(); save(); }
 window.__csExam  = function(ci,v){ D.courses[ci].exam=v; csTouch(D.courses[ci]); };
 window.__csDate  = function(ci,ri,v){ if(!v) return; D.courses[ci].rounds[ri].date=v; csTouch(D.courses[ci]); drawPlan(); };
 window.__csTopic = function(ci,ri,v){ D.courses[ci].rounds[ri].topic=v; csTouch(D.courses[ci]); };
@@ -2771,6 +2802,7 @@ function adopt(o){
   D.tomb=o.tomb||{};
   D.settings=Object.assign({goalMin:600},o.settings||{});
   dedupe(D);
+  pruneAutoPlans();     /* 불러온 데이터의 진도표와 어긋난 자동 계획 정리 */
   try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){}
   redrawAll();
 }
@@ -2971,6 +3003,7 @@ function redrawAll(){
 }
 tLoad(); tSanity(); tShow(); drawFocusInput();
 if(tRun){ clearInterval(tId); tId=setInterval(tShow,1000); }
+if(pruneAutoPlans()) save();     /* 진도표와 어긋난 자동 계획 정리 */
 redrawAll(); renderFs();
 if(dedupeRemoved){ dedupeRemoved=false; save(); toast('중복된 항목을 정리했습니다'); }
 if(cloudReady()) cloudSync(true);
