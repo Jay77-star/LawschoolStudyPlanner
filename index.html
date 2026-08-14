@@ -1194,10 +1194,17 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function toast(m){ var t=$('#toast'); t.textContent=m; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},1900); }
 function ymd(d){ return d.toLocaleDateString('sv-SE'); }
-function today(){ return ymd(new Date()); }
-function daysAgo(n){ var d=new Date(); d.setDate(d.getDate()-n); return ymd(d); }
-function weekStart(){ var d=new Date(); var w=(d.getDay()+6)%7; d.setDate(d.getDate()-w); return ymd(d); }
-function monthStart(){ var d=new Date(); d.setDate(1); return ymd(d); }
+/* 공부하는 하루의 경계는 자정이 아니라 새벽 5시.
+   밤 1~2시까지 이어서 공부하는 동안에도 "오늘"이 넘어가지 않게 한다.
+   기록 날짜·오늘의 계획·달력·통계가 모두 이 기준을 따른다.
+   단, 시간대(새벽/오전/오후/저녁) 판정은 실제 시각 그대로 한다. */
+var DAY_START_HR = 5;
+function studyNow(){ var d=new Date(); if(d.getHours()<DAY_START_HR) d.setDate(d.getDate()-1); return d; }
+function studyDate(ts){ var d=new Date(ts); if(d.getHours()<DAY_START_HR) d.setDate(d.getDate()-1); return ymd(d); }
+function today(){ return ymd(studyNow()); }
+function daysAgo(n){ var d=studyNow(); d.setDate(d.getDate()-n); return ymd(d); }
+function weekStart(){ var d=studyNow(); var w=(d.getDay()+6)%7; d.setDate(d.getDate()-w); return ymd(d); }
+function monthStart(){ var d=studyNow(); d.setDate(1); return ymd(d); }
 function hm(min){ min=Math.round(min||0); var h=Math.floor(min/60), m=min%60;
   if(h&&m) return h+'시간 '+m+'분'; if(h) return h+'시간'; return m+'분'; }
 function hshort(min){ min=Math.round(min||0); var h=min/60; return h>=1? (Math.round(h*10)/10)+'h' : min+'m'; }
@@ -1819,8 +1826,19 @@ function tStop(fill){
   if(fill && tAcc>0){
     var mins=Math.max(1, Math.round(tAcc/60));
     $('#f-min').value=mins;
+    /* 시작한 시각 기준으로 어느 날 공부인지 정한다 (새벽 5시 이전은 전날).
+       날짜를 일부러 바꿔둔 상태(오늘이 아님)면 건드리지 않는다. */
+    var sg=tSegsNow(), back=false;
+    if(sg.length){
+      var sd=studyDate(sg[0].on);
+      if($('#f-date').value===today() && sd!==$('#f-date').value){
+        $('#f-date').value=sd; drawPlan(); back=true;
+      }
+    }
     /* 무엇을 잰 시간인지 같이 알려준다 — 과목을 잘못 둔 채 저장하는 실수를 막는다 */
-    toast(hm(mins)+' 기록됨' + (cur.group ? ' · '+cur.group+(cur.type? ' '+shortType(cur.type):'') : ' · 과목을 골라 주세요'));
+    toast(hm(mins)+' 기록됨'
+      + (cur.group ? ' · '+cur.group+(cur.type? ' '+shortType(cur.type):'') : ' · 과목을 골라 주세요')
+      + (back ? ' · 시작한 날('+$('#f-date').value.slice(5)+')로 잡았습니다' : ''));
   }
 }
 function tReset(){
@@ -1986,10 +2004,10 @@ function table(rows, compact){
 
 /* ================= 달력 ================= */
 var calY, calM, calSel=null;
-(function(){ var n=new Date(); calY=n.getFullYear(); calM=n.getMonth(); })();
+(function(){ var n=studyNow(); calY=n.getFullYear(); calM=n.getMonth(); })();
 $('#c-prev').onclick = function(){ calM--; if(calM<0){calM=11;calY--;} drawCal(); };
 $('#c-next').onclick = function(){ calM++; if(calM>11){calM=0;calY++;} drawCal(); };
-$('#c-now').onclick  = function(){ var n=new Date(); calY=n.getFullYear(); calM=n.getMonth(); drawCal(); };
+$('#c-now').onclick  = function(){ var n=studyNow(); calY=n.getFullYear(); calM=n.getMonth(); drawCal(); };
 function minutesOf(d){ return D.logs.filter(function(r){return r.date===d;}).reduce(function(s,r){return s+r.minutes;},0); }
 function goalMin(){ return (D.settings && D.settings.goalMin) || 600; }
 function levelOf(d){
@@ -2039,7 +2057,7 @@ window.__pick = function(d){ calSel=d; drawCal(); };
 
 /* 이 달의 달성 — 지나간 날까지만 셈 */
 function drawMonthSum(){
-  var t=new Date();
+  var t=studyNow();
   var isFuture = calY>t.getFullYear() || (calY===t.getFullYear() && calM>t.getMonth());
   var isCurrent = calY===t.getFullYear() && calM===t.getMonth();
   var last = new Date(calY, calM+1, 0).getDate();
